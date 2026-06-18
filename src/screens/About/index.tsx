@@ -1,52 +1,82 @@
-
-import { ScrollView, View, Text, Image, StyleSheet } from "react-native";
 import React from "react";
+import { ScrollView, View, Text, Image, StyleSheet } from "react-native";
+import { useTheme } from "../../contexts/ThemeContext";
 
-const TECHNOLOGIES = [
+// Tipagem explícita do array para evitar inferências incorretas no modo estrito
+const TECHNOLOGIES: string[] = [
   "React Native",
-  "React Navigation",
-  "TypeScript",
-  "StyleSheet API",
-  "API TMDB",
+  "React Navigation v7",
+  "TypeScript (Strict Mode)",
+  "Context API",
+  "AsyncStorage",
 ];
 
-export default function About(){
+export default function About() {
+  const { currentTheme } = useTheme();
+
+  // Configuração dinâmica de cores de acordo com o tema ativo
+  const isDark = currentTheme === 'dark';
+  const themeColors = {
+    background: isDark ? '#15151a' : '#f3f4f6',
+    cardBg: isDark ? '#1e1e24' : '#ffffff',
+    border: isDark ? '#2e2e38' : '#e5e7eb',
+    text: isDark ? '#ffffff' : '#111827',
+    subText: isDark ? '#9ca3af' : '#4b5563',
+    techTagBg: isDark ? '#2e2e38' : '#e5e7eb',
+    techTagText: isDark ? '#ffffff' : '#374151',
+  };
+
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Sobre o React Filmes</Text>
-
-      <Text style={styles.text}>
-        O React Filmes é uma aplicação desenvolvida para explorar informações
-        sobre filmes, permitindo que o usuário navegue por títulos populares e
-        acesse detalhes de cada produção.
+    <ScrollView 
+      style={[styles.screen, { backgroundColor: themeColors.background }]} 
+      contentContainerStyle={styles.container}
+      showsVerticalScrollIndicator={false}
+    >
+      <Text style={[styles.title, { color: themeColors.text }]}>
+        Sobre o React Filmes 🎬
       </Text>
 
-      <Text style={styles.text}>
-        Este projeto foi criado como atividade prática de Desenvolvimento de
-        Aplicações Multiplataforma, pelos alunos Kevin, Patrick, Rayla, Simone
-        e Thiago Rocha, utilizando React, rotas, componentes e consumo de API.
+      <Text style={[styles.text, { color: themeColors.subText }]}>
+        O React Filmes é uma aplicação robusta desenvolvida para explorar informações
+        sobre produções cinematográficas, permitindo que o utilizador navegue por títulos 
+        populares e aceda a detalhes completos de cada obra.
       </Text>
 
-      <View style={styles.logoContainer}>
-        <Image source={require("../../../assets/tmdblogo.png")}
-        style={styles.logo}/>
+      <Text style={[styles.text, { color: themeColors.subText }]}>
+        Este projeto foi reestruturado seguindo as melhores práticas de arquitetura, 
+        utilizando TypeScript estrito, Context API para gestão global de estados e 
+        persistência de dados local com AsyncStorage.
+      </Text>
 
-        <Text style={styles.logoText}>
-          Dados fornecidos pela API TMDB (The Movie Database). Não usado para
-          fins comerciais, apenas para aprendizado e prática de
-          desenvolvimento.
+      {/* Contentor do Logótipo da API externa */}
+      <View style={[styles.logoContainer, { backgroundColor: themeColors.cardBg, borderColor: themeColors.border }]}>
+        <Image 
+          source={require("../../../assets/tmdblogo.png")}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+
+        <Text style={[styles.logoText, { color: themeColors.subText }]}>
+          Dados demonstrativos fornecidos pela API TMDB (The Movie Database). 
+          Aplicação desenvolvida exclusivamente para fins académicos e de aprendizagem prática.
         </Text>
       </View>
 
-      <View style={styles.previewBox}>
-        <Text style={styles.previewBoxTitle}>Tecnologias utilizadas</Text>
+      {/* Secção de Tecnologias Utilizadas */}
+      <View style={[styles.previewBox, { backgroundColor: themeColors.cardBg, borderColor: themeColors.border }]}>
+        <Text style={[styles.previewBoxTitle, { color: themeColors.text }]}>
+          Tecnologias e Conceitos Aplicados
+        </Text>
 
-        {TECHNOLOGIES.map((tech) => (
-          <View key={tech} style={styles.listItem}>
-            <Text style={styles.bullet}>▪</Text>
-            <Text style={styles.listItemText}>{tech}</Text>
-          </View>
-        ))}
+        <View style={styles.techGrid}>
+          {TECHNOLOGIES.map((tech) => (
+            <View key={tech} style={[styles.techTag, { backgroundColor: themeColors.techTagBg }]}>
+              <Text style={[styles.techTagText, { color: themeColors.techTagText }]}>
+                {tech}
+              </Text>
+            </View>
+          ))}
+        </View>
       </View>
     </ScrollView>
   );
@@ -58,77 +88,67 @@ const styles = StyleSheet.create({
   },
   container: {
     width: "100%",
-    maxWidth: 400,
+    maxWidth: 420,
     alignSelf: "center",
     paddingHorizontal: 20,
-    paddingVertical: 40,
+    paddingVertical: 30,
     gap: 20,
   },
   title: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: "700",
     textAlign: "center",
-    marginBottom: 10,
-    color: "#1a1a1a",
+    marginBottom: 5,
   },
   text: {
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: 15,
+    lineHeight: 22,
     textAlign: "justify",
-    color: "#1a1a1a",
   },
   logoContainer: {
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.05)",
-    padding: 30,
+    padding: 20,
     borderRadius: 12,
-    marginTop: 20,
+    borderWidth: 1,
+    marginTop: 10,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   logo: {
-    width: 300,
-    height: 80,
-    marginBottom: 15,
-    borderRadius:10 
+    width: 200,
+    height: 60,
+    marginBottom: 12,
   },
   logoText: {
-    fontSize: 13,
+    fontSize: 12,
     textAlign: "center",
-    opacity: 0.8,
-    maxWidth: "80%",
-    color: "#1a1a1a",
+    lineHeight: 18,
   },
   previewBox: {
-    marginTop: 30,
-    padding: 25,
-    borderLeftWidth: 4,
-    borderLeftColor: "#0070f3",
-    backgroundColor: "rgba(0, 112, 243, 0.05)",
-    borderRadius: 8,
+    padding: 20,
+    borderRadius: 12,
+    borderWidth: 1,
   },
   previewBoxTitle: {
-    marginBottom: 15,
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#1a1a1a",
-  },
-  listItem: {
-    flexDirection: "row",
-    marginBottom: 6,
-  },
-  bullet: {
     fontSize: 16,
-    marginRight: 8,
-    color: "#1a1a1a",
+    fontWeight: "bold",
+    marginBottom: 14,
   },
-  listItemText: {
-    flex: 1,
-    fontSize: 16,
-    lineHeight: 24,
-    color: "#1a1a1a",
+  techGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  techTag: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  techTagText: {
+    fontSize: 13,
+    fontWeight: "500",
   },
 });
