@@ -6,7 +6,7 @@ import { ParamListBase, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 export interface RootStackParamList extends ParamListBase{
-  Contato: undefined
+ Home:undefined;
 }
 
 export default function Login() {
@@ -14,6 +14,9 @@ export default function Login() {
   const [password, setPassword] = useState("");
    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
    
+const handleLogin=()=>{
+    navigation.navigate("Home")}
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
@@ -51,7 +54,7 @@ export default function Login() {
           /> 
         </View>
           <View style={styles.buttonContainer}>
-            <Button title='Entrar' color="#007BFF" onPress={()=>navigation.navigate("Contato")}/>
+            <Button title='Entrar' color="#007BFF" onPress={handleLogin}/>
 
           </View>
 
