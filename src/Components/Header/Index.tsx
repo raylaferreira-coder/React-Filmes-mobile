@@ -36,7 +36,7 @@ export default function Header({ navigation }: NativeStackHeaderProps) {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.userSection}>
+      <View style={styles.userSection}>c:\work\React-Filmes\API\filmes\filmes
         {usuarioLogado && (
           <Text style={[styles.username, { color: textColor }]}>
             {usuarioLogado}
