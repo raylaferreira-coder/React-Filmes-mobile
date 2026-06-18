@@ -1,8 +1,8 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../Types/Navigation';
+import { RootStackParamList } from '../@types/Navigation';
 import { NavigationContainer } from '@react-navigation/native';
 
-import Header from '../Components/Header';
+import Header from '../components/Header';
 import Login from '../screens/Login';
 import About from '../screens/About';
 import Home from '../screens/Home';

@@ -1,5 +1,5 @@
 import {  View } from 'react-native';
-import AppRouter from './src/Router/AppRouter';
+import AppRouter from './src/routes/AppRouter';
 
 export default function App() {
   return (
