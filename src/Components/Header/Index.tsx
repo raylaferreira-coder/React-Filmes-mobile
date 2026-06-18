@@ -1,9 +1,9 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { useTheme } from '../ThemeContext'; 
+// import { useTheme } from '../ThemeContext'; 
 
 export default function Header({ navigation }: any) {
-  const { theme, toggleTheme } = useTheme();
+//   const { theme, toggleTheme } = useTheme();
 
   const usuarioLogado = "usuario"; 
 
@@ -12,10 +12,10 @@ export default function Header({ navigation }: any) {
     navigation.navigate("Login"); 
   };
 
-  const isLight = theme === 'light';
-  const bgColor = isLight ? '#fafafa' : '#1e1e1e';
-  const borderColor = isLight ? '#e0e0e0' : '#333';
-  const textColor = isLight ? '#000000' : '#ffffff';
+//   const isLight = theme === 'light';
+//   const bgColor = isLight ? '#fafafa' : '#1e1e1e';
+//   const borderColor = isLight ? '#e0e0e0' : '#333';
+//   const textColor = isLight ? '#000000' : '#ffffff';
 
   return (
     <View style={[styles.header, { backgroundColor: bgColor, borderBottomColor: borderColor }]}>
