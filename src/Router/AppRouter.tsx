@@ -20,16 +20,16 @@ export default function AppRouter() {
                     options={{headerShown: false}} 
                 />
 
-                <Stack.Group>
-                    screenOptions={{
-                        headerShown: true,
-                        header: (props) => <Header {...props} />
-                    }}
-
-                <Stack.Screen name="Home" component={Home} />
-                <Stack.Screen name="About" component={About} />
-                <Stack.Screen name="ContactUs" component={ContactUs} />
+            <Stack.Group>
+                screenOptions={{
+                    headerShown: true,
+                    header: (props) => <Header {...props} />
+                }}
             </Stack.Group>
+
+            <Stack.Screen name="Home" component={Home} />
+            <Stack.Screen name="About" component={About} />
+            <Stack.Screen name="ContactUs" component={ContactUs} />
         </Stack.Navigator>
     </NavigationContainer>
   );
