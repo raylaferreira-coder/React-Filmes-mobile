@@ -1,5 +1,8 @@
 package com.example.reactFilmeMobile.Model;
 
+import java.time.Instant;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,11 +21,23 @@ public class Login {
 	@NotBlank
 	@Size(max = 200)
 	@Email
+	@Column(name = "email")
 	private String email;
 
 	@NotBlank
 	@Size(max = 50)
+	@Column(name = "senha")
 	private String senha;
+
+	public Login() {
+	}
+
+	public Login(Long id, String email, String senha) {
+		super();
+		this.id = id;
+		this.email = email;
+		this.senha = senha;
+	}
 
 	public Long getId() {
 		return id;

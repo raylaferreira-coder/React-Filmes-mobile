@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import api from '../data/api';
 
 interface UserData {
-  name: string;
   email: string;
 }
 
@@ -19,7 +19,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Verifica se já existe uma sessão ativa guardada no dispositivo
+  
   useEffect(() => {
     const checkActiveSession = async () => {
       try {
@@ -36,29 +36,49 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     checkActiveSession();
   }, []);
 
-  // Simulação de chamada de API para autenticação
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
+    const formattedEmail = email.trim().toLocaleLowerCase()
     
     // Simula um atraso de rede de 1.5 segundos
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    // Validação estrita simulando a resposta de um servidor externo
-    if (email.trim().toLowerCase() === 'teste@teste.com' && password === '123456') {
+    try {
+      
+        const response = await api.post('/usuarios/login', {
+          email: formattedEmail,
+          senha: password
+      });
+      
+      const { token,  email: userEmail } = response.data;
+     
       const loggedUser: UserData = {
-        name: 'Teste',
-        email: email.trim().toLowerCase(),
+        email: userEmail || formattedEmail,
       };
 
+      setUser(loggedUser);
+      await AsyncStorage.setItem('@cinema_app:user', JSON.stringify(loggedUser));
+      await AsyncStorage.setItem('@cinema_app:token', token)
+
+      setIsLoading(false);
+      return true;
+    }catch (error) {
+      console.warn("Falha de autenticação na API", error)
+    }
+
+    if (formattedEmail === 'teste@teste.com' && password === '123456') {
+      const loggedUser: UserData = {
+        email: formattedEmail,
+      }  
       try {
         setUser(loggedUser);
         await AsyncStorage.setItem('@cinema_app:user', JSON.stringify(loggedUser));
         setIsLoading(false);
         return true; // login efetuado
-      } catch (error) {
-        console.error('Erro ao guardar sessão:', error);
+      } catch (storageError) {
+        console.error('Erro ao guardar sessão do usuario teste:', 'Erro ao guardar sessão do usuário mock:', storageError);
       }
-    }
+    };
 
     setIsLoading(false);
     return false; //inválidas

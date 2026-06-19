@@ -1,16 +1,12 @@
 package com.example.reactFilmeMobile.Model;
 
-import java.time.LocalDate;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import java.time.Instant;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-@Entity(name = "comentario")
+@Entity
+@Table(name = "comentario")
 public class Comentario {
 
 	@Id
@@ -18,12 +14,8 @@ public class Comentario {
 	private Long id;
 
 	@NotBlank
-	@Column(name = "codigoFilme")
-	private Long codigoFilme;
-
-	@NotBlank
 	@Size(max = 255)
-	@Column(name = "postagem")
+	@Column(name = "postagem", columnDefinition = "TEXT", nullable = false)
 	private String postagem;
 
 	@NotBlank
@@ -32,10 +24,31 @@ public class Comentario {
 	private String nome;
 
 	@Column(name = "like")
-	private Long like;
+	private int like;
 
 	@Column(name = "dataPostagem")
-	private LocalDate dataPostagem;
+	private Instant dataPostagem;
+
+	private String avatarURL;
+
+	@NotBlank
+	@Column(name = "codigoFilme")
+	private String filmeId; // Amarra o comentário ao ID retornado do TMDB no front
+
+	public Comentario() {
+	}
+
+	public Comentario(Long id, String nome, String postagem, int like, Instant dataPostagem, String avatarURL,
+			String filmeId) {
+		super();
+		this.id = id;
+		this.nome = nome;
+		this.postagem = postagem;
+		this.dataPostagem = dataPostagem;
+		this.like = like;
+		this.avatarURL = avatarURL;
+		this.filmeId = filmeId;
+	}
 
 	public Long getId() {
 		return id;
@@ -53,12 +66,12 @@ public class Comentario {
 		this.postagem = postagem;
 	}
 
-	public Long getCodigoFilme() {
-		return codigoFilme;
+	public String getFilmeId() {
+		return filmeId;
 	}
 
-	public void setCodigoFilme(Long codigo) {
-		this.codigoFilme = codigo;
+	public void setFilmeId(String filmeId) {
+		this.filmeId = filmeId;
 	}
 
 	public String getNome() {
@@ -69,19 +82,27 @@ public class Comentario {
 		this.nome = nome;
 	}
 
-	public Long getLike() {
+	public int getLike() {
 		return like;
 	}
 
-	public void setLike(Long like) {
+	public void setLike(int like) {
 		this.like = like;
 	}
 
-	public LocalDate getDataPostagem() {
+	public Instant getDataPostagem() {
 		return dataPostagem;
 	}
 
-	public void setDataPostagem(LocalDate dataPostagem) {
+	public void setDataPostagem(Instant dataPostagem) {
 		this.dataPostagem = dataPostagem;
+	}
+
+	public String getAvatarURL() {
+		return avatarURL;
+	}
+
+	public void setAvatarURL(String avatarURL) {
+		this.avatarURL = avatarURL;
 	}
 }
