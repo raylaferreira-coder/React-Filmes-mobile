@@ -1,10 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import api from '../data/api'; 
-
+import api from '../data/api';
 
 interface UserData {
-  id: number;
   email: string;
 }
 
@@ -40,9 +38,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     checkActiveSession();
   }, []);
 
-
-  const login = async (email: string, senha: string): Promise<void> => {
+  const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
+    const formattedEmail = email.trim().toLocaleLowerCase()
     
     try {
       
@@ -54,16 +52,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
      
       const { token, id, email: userEmail } = response.data;
 
+    try {
+      
+        const response = await api.post('/usuarios/login', {
+          email: formattedEmail,
+          senha: password
+      });
+      
+      const { token,  email: userEmail } = response.data;
+     
       const loggedUser: UserData = {
-        id: id,
-        email: userEmail
+        email: userEmail || formattedEmail,
       };
 
-      
-      await AsyncStorage.setItem('token', token);
-      
-      
+      setUser(loggedUser);
       await AsyncStorage.setItem('@cinema_app:user', JSON.stringify(loggedUser));
+      await AsyncStorage.setItem('@cinema_app:token', token)
+
+      setIsLoading(false);
+      return true;
+    }catch (error) {
+      console.warn("Falha de autenticação na API", error)
+    }
+
+    if (formattedEmail === 'teste@teste.com' && password === '123456') {
+      const loggedUser: UserData = {
+        email: formattedEmail,
+      }  
+      try {
+        setUser(loggedUser);
+        await AsyncStorage.setItem('@cinema_app:user', JSON.stringify(loggedUser));
+        setIsLoading(false);
+        return true; // login efetuado
+      } catch (storageError) {
+        console.error('Erro ao guardar sessão do usuario teste:', 'Erro ao guardar sessão do usuário mock:', storageError);
+      }
+    };
 
     
       setUser(loggedUser);

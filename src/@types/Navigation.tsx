@@ -6,6 +6,7 @@ export type RootStackParamList = {
   ContactUs: undefined;
   About: undefined;
   PostFeed: undefined; 
+  Feed: undefined;
 };
 
 export type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
