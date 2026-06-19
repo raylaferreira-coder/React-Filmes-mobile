@@ -2,13 +2,16 @@ import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from "react-native";
 import { NativeStackHeaderProps } from "@react-navigation/native-stack";
 import { useTheme } from "../../contexts/ThemeContext";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function Header({ navigation }: NativeStackHeaderProps) {
   const { currentTheme, setThemeMode } = useTheme();
-  const usuarioLogado = "Teste";//ainda preciso incluir o usuario automatico.
+  const { user, logout } = useAuth();
+  const usuarioLogado = user?.email;
 
-  const handleLogout = () => {
-    navigation.navigate("Login");
+  const handleLogout = async () => {
+  await logout();
+  navigation.navigate("Login");
   };
 
   const isLight = currentTheme === "light";
@@ -36,7 +39,7 @@ export default function Header({ navigation }: NativeStackHeaderProps) {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.userSection}>c:\work\React-Filmes\API\filmes\filmes
+      <View style={styles.userSection}>
         {usuarioLogado && (
           <Text style={[styles.username, { color: textColor }]}>
             {usuarioLogado}
