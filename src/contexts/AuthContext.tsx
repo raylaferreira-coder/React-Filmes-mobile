@@ -1,15 +1,17 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import api from '../data/api'; 
+
 
 interface UserData {
-  name: string;
+  id: number;
   email: string;
 }
 
 interface AuthContextType {
   user: UserData | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, senha: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -19,12 +21,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Verifica se já existe uma sessão ativa guardada no dispositivo
+  
   useEffect(() => {
     const checkActiveSession = async () => {
       try {
         const storedUser = await AsyncStorage.getItem('@cinema_app:user');
-        if (storedUser) {
+        const token = await AsyncStorage.getItem('token');
+
+        if (storedUser && token) {
           setUser(JSON.parse(storedUser));
         }
       } catch (error) {
@@ -36,39 +40,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     checkActiveSession();
   }, []);
 
-  // Simulação de chamada de API para autenticação
-  const login = async (email: string, password: string): Promise<boolean> => {
+
+  const login = async (email: string, senha: string): Promise<void> => {
     setIsLoading(true);
     
-    // Simula um atraso de rede de 1.5 segundos
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    // Validação estrita simulando a resposta de um servidor externo
-    if (email.trim().toLowerCase() === 'teste@teste.com' && password === '123456') {
-      const loggedUser: UserData = {
-        name: 'Teste',
+    try {
+      
+      const response = await api.post('/auth/login', {
         email: email.trim().toLowerCase(),
+        senha: senha
+      });
+
+     
+      const { token, id, email: userEmail } = response.data;
+
+      const loggedUser: UserData = {
+        id: id,
+        email: userEmail
       };
 
-      try {
-        setUser(loggedUser);
-        await AsyncStorage.setItem('@cinema_app:user', JSON.stringify(loggedUser));
-        setIsLoading(false);
-        return true; // login efetuado
-      } catch (error) {
-        console.error('Erro ao guardar sessão:', error);
-      }
-    }
+      
+      await AsyncStorage.setItem('token', token);
+      
+      
+      await AsyncStorage.setItem('@cinema_app:user', JSON.stringify(loggedUser));
 
-    setIsLoading(false);
-    return false; //inválidas
+    
+      setUser(loggedUser);
+
+    } catch (error) {
+   
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // Encerra a sessão e limpa o armazenamento local
+ 
   const logout = async () => {
     try {
       setUser(null);
       await AsyncStorage.removeItem('@cinema_app:user');
+      await AsyncStorage.removeItem('token'); 
     } catch (error) {
       console.error('Erro ao efetuar logout:', error);
     }
@@ -84,7 +97,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth deve ser usado dentro de um AuthProvider');
+    throw new Error
   }
   return context;
 };
