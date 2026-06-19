@@ -12,19 +12,19 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { NavigationProp } from "../../@types/Navigation";
-import { useAuth } from "../../contexts/AuthContext";
 import { useTheme } from "../../contexts/ThemeContext";
+import { useAuth } from "../../contexts/AuthContext"; 
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [erro, setErro] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   
-  // Consumindo os nossos contextos globais e navegação tipada
   const navigation = useNavigation<NavigationProp>();
-  const { login, isLoading } = useAuth();
   const { currentTheme } = useTheme();
-
-  // Definição dinâmica da paleta de cores baseada no tema ativo
+  const { login } = useAuth(); 
+  
   const isDark = currentTheme === 'dark';
   const themeColors = {
     background: isDark ? '#15151a' : '#f3f4f6',
@@ -36,21 +36,30 @@ export default function Login() {
     placeholder: isDark ? '#6b7280' : '#9ca3af',
   };
 
-  const handleLogin = async () => {
-    if (!email.trim() || !password.trim()) {
-      Alert.alert("Atenção", "Por favor, preencha todos os campos.");
+  function handleLogin() {
+    if (!email || !password) {
+      Alert.alert("Erro", "Preencha todos os campos.");
       return;
     }
 
-    // Executa a função de login assíncrona do AuthContext
-    const success = await login(email, password);
+    setIsLoading(true);
+    setErro("");
 
-    if (success) {
-      navigation.navigate("Home");
-    } else {
-      Alert.alert("Erro de Autenticação", "E-mail ou senha incorretos.");
-    }
-  };
+    
+    login(email, password)
+      .then(() => {
+        setIsLoading(false);
+   
+        navigation.navigate("Home"); 
+      })
+      .catch((err) => {
+        setIsLoading(false);
+        
+        const mensagemErro = err.response?.data?.message || "Usuário ou senha inválidos.";
+        setErro(mensagemErro);
+        Alert.alert("Erro no Login", mensagemErro);
+      });
+  }
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
@@ -58,7 +67,10 @@ export default function Login() {
         
         <Text style={[styles.titleText, { color: themeColors.text }]}>Login</Text>
         
-        {/* INPUT DE E-MAIL */}
+      
+        {erro ? <Text style={styles.erroTexto}>{erro}</Text> : null}
+        
+       
         <View style={[styles.inputRow, { backgroundColor: themeColors.inputBg, borderColor: themeColors.border }]}>
           <MaterialIcons name="email" size={22} color={themeColors.subText} style={styles.icon} />
           <TextInput   
@@ -72,8 +84,7 @@ export default function Login() {
             editable={!isLoading} 
           />
         </View>
-        
-        {/* INPUT DE SENHA */}
+       
         <View style={[styles.inputRow, { backgroundColor: themeColors.inputBg, borderColor: themeColors.border }]}>
           <MaterialIcons name="lock" size={22} color={themeColors.subText} style={styles.icon} />
           <TextInput 
@@ -88,6 +99,7 @@ export default function Login() {
           /> 
         </View>
 
+        
         <Pressable 
           style={[styles.botaoEntrar, { opacity: isLoading ? 0.7 : 1 }]} 
           onPress={handleLogin}
@@ -117,7 +129,7 @@ const styles = StyleSheet.create({
   },
   loginCard: {
     width: "100%", 
-    maxWidth: 380, // responsividade para telefones
+    maxWidth: 380,
     borderRadius: 12,
     padding: 28, 
     borderWidth: 1,
@@ -132,6 +144,12 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: 'bold',
     marginBottom: 24,
+  },
+  erroTexto: {
+    color: '#ef4444',
+    textAlign: 'center',
+    marginBottom: 16,
+    fontSize: 14,
   },
   inputRow: {
     flexDirection: 'row',    
@@ -151,7 +169,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   botaoEntrar: {
-    backgroundColor: '#e11d48', // Vermelho Cinema destacado
+    backgroundColor: '#e11d48',
     borderRadius: 8,
     height: 46,
     justifyContent: 'center',

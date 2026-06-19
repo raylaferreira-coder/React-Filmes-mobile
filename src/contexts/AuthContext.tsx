@@ -9,7 +9,7 @@ interface UserData {
 interface AuthContextType {
   user: UserData | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, senha: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -24,7 +24,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const checkActiveSession = async () => {
       try {
         const storedUser = await AsyncStorage.getItem('@cinema_app:user');
-        if (storedUser) {
+        const token = await AsyncStorage.getItem('token');
+
+        if (storedUser && token) {
           setUser(JSON.parse(storedUser));
         }
       } catch (error) {
@@ -40,8 +42,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     const formattedEmail = email.trim().toLocaleLowerCase()
     
-    // Simula um atraso de rede de 1.5 segundos
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      
+      const response = await api.post('/auth/login', {
+        email: email.trim().toLowerCase(),
+        senha: senha
+      });
+
+     
+      const { token, id, email: userEmail } = response.data;
 
     try {
       
@@ -80,15 +89,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     };
 
-    setIsLoading(false);
-    return false; //inválidas
+    
+      setUser(loggedUser);
+
+    } catch (error) {
+   
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // Encerra a sessão e limpa o armazenamento local
+ 
   const logout = async () => {
     try {
       setUser(null);
       await AsyncStorage.removeItem('@cinema_app:user');
+      await AsyncStorage.removeItem('token'); 
     } catch (error) {
       console.error('Erro ao efetuar logout:', error);
     }
@@ -104,7 +121,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth deve ser usado dentro de um AuthProvider');
+    throw new Error
   }
   return context;
 };
