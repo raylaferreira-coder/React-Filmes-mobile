@@ -4,7 +4,7 @@ import { RootStackParamList } from '../@types/Navigation';
 import { NavigationContainer } from '@react-navigation/native';
 
 // Ajustado para "Components" com C maiúsculo conforme o seu VS Code
-import Header from '../Components/Header/Index';
+import Header from '../components/Header';
 import Login from '../screens/Login';
 import About from '../screens/About';
 import Home from '../screens/Home';
