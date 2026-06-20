@@ -9,6 +9,7 @@ import Login from '../screens/Login';
 import About from '../screens/About';
 import Home from '../screens/Home';
 import ContactUs from '../screens/ContactUs';
+import Feed from '../screens/Feed';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -32,6 +33,7 @@ export default function AppRouter() {
         >
           <Stack.Screen name="Home" component={Home} />
           <Stack.Screen name="About" component={About} />
+          <Stack.Screen name="Feed" component={Feed} />
           <Stack.Screen name="ContactUs" component={ContactUs} />
         </Stack.Group>
 
