@@ -1,14 +1,14 @@
 import React, { useState } from "react";
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  Pressable, 
-  Alert, 
-  StyleSheet, 
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  Alert,
+  StyleSheet,
   ScrollView,
   KeyboardAvoidingView,
-  Platform
+  Platform,
 } from "react-native";
 import { useTheme } from "../../contexts/ThemeContext";
 
@@ -19,16 +19,15 @@ export default function ContactUs() {
 
   const { currentTheme } = useTheme();
 
-  // Definição dinâmica de cores com base no tema ativo
-  const isDark = currentTheme === 'dark';
+  const isDark = currentTheme === "dark";
   const themeColors = {
-    background: isDark ? '#15151a' : '#f3f4f6',
-    cardBg: isDark ? '#1e1e24' : '#ffffff',
-    inputBg: isDark ? '#15151a' : '#f9fafb',
-    border: isDark ? '#2e2e38' : '#e5e7eb',
-    text: isDark ? '#ffffff' : '#111827',
-    subText: isDark ? '#9ca3af' : '#4b5563',
-    placeholder: isDark ? '#6b7280' : '#9ca3af',
+    background: isDark ? "#15151a" : "#f3f4f6",
+    cardBg: isDark ? "#1e1e24" : "#ffffff",
+    inputBg: isDark ? "#15151a" : "#f9fafb",
+    border: isDark ? "#2e2e38" : "#e5e7eb",
+    text: isDark ? "#ffffff" : "#111827",
+    subText: isDark ? "#9ca3af" : "#4b5563",
+    placeholder: isDark ? "#6b7280" : "#9ca3af",
   };
 
   function enviarMensagem() {
@@ -39,10 +38,9 @@ export default function ContactUs() {
 
     Alert.alert(
       "Mensagem enviada!",
-      `Obrigado pelo contacto, ${nome.trim()}. A nossa equipa responderá em breve.`
+      `Obrigado pelo contato, ${nome.trim()}. A nossa equipa responderá em breve.`
     );
 
-    // Limpa os campos após o envio com sucesso
     setNome("");
     setEmail("");
     setMensagem("");
@@ -53,58 +51,83 @@ export default function ContactUs() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={{ flex: 1 }}
     >
-      <ScrollView 
+      <ScrollView
         style={[styles.screen, { backgroundColor: themeColors.background }]}
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <View style={[styles.card, { backgroundColor: themeColors.cardBg, borderColor: themeColors.border }]}>
-          <Text style={[styles.titulo, { color: themeColors.text }]}>Fale Conosco</Text>
+        <View
+          style={[
+            styles.card,
+            {
+              backgroundColor: themeColors.cardBg,
+              borderColor: themeColors.border,
+            },
+          ]}
+        >
+          <Text style={[styles.titulo, { color: themeColors.text }]}>
+            Fale Conosco
+          </Text>
+
           <Text style={[styles.subtitulo, { color: themeColors.subText }]}>
             Tem alguma dúvida ou sugestão sobre o catálogo? Envie-nos uma mensagem!
           </Text>
 
-          {/* CAMPO: NOME */}
           <Text style={[styles.label, { color: themeColors.text }]}>Nome</Text>
           <TextInput
-            style={[styles.input, { backgroundColor: themeColors.inputBg, borderColor: themeColors.border, color: themeColors.text }]}
+            style={[
+              styles.input,
+              {
+                backgroundColor: themeColors.inputBg,
+                borderColor: themeColors.border,
+                color: themeColors.text,
+              },
+            ]}
             placeholder="Digite o seu nome"
             placeholderTextColor={themeColors.placeholder}
             value={nome}
             onChangeText={setNome}
           />
 
-          {/* CAMPO: E-MAIL */}
           <Text style={[styles.label, { color: themeColors.text }]}>E-mail</Text>
           <TextInput
-            style={[styles.input, { backgroundColor: themeColors.inputBg, borderColor: themeColors.border, color: themeColors.text }]}
-            placeholder="Digite o seu e-mail"
+            style={[
+              styles.input,
+              {
+                backgroundColor: themeColors.inputBg,
+                borderColor: themeColors.border,
+                color: themeColors.text,
+              },
+            ]}
+            placeholder="Digite seu e-mail"
             placeholderTextColor={themeColors.placeholder}
-            keyboardType="email-address" 
+            keyboardType="email-address"
             autoCapitalize="none"
             value={email}
             onChangeText={setEmail}
           />
 
-          {/* CAMPO: MENSAGEM */}
           <Text style={[styles.label, { color: themeColors.text }]}>Mensagem</Text>
           <TextInput
             style={[
-              styles.input, 
-              styles.mensagem, 
-              { backgroundColor: themeColors.inputBg, borderColor: themeColors.border, color: themeColors.text }
+              styles.input,
+              styles.mensagem,
+              {
+                backgroundColor: themeColors.inputBg,
+                borderColor: themeColors.border,
+                color: themeColors.text,
+              },
             ]}
             placeholder="Escreva aqui a sua mensagem..."
             placeholderTextColor={themeColors.placeholder}
             value={mensagem}
             onChangeText={setMensagem}
-            multiline={true}
+            multiline
             numberOfLines={4}
-            textAlignVertical="top" // Garante alinhamento correto no Android
+            textAlignVertical="top"
           />
 
-          {/* BOTÃO DE SUBMISSÃO */}
           <Pressable style={styles.botao} onPress={enviarMensagem}>
             <Text style={styles.botaoTexto}>Enviar Mensagem</Text>
           </Pressable>
@@ -120,8 +143,8 @@ const styles = StyleSheet.create({
   },
   container: {
     padding: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     paddingVertical: 30,
   },
   card: {
@@ -154,10 +177,10 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   input: {
-    borderWidth: 1, 
+    borderWidth: 1,
     borderRadius: 8,
     height: 46,
-    marginBottom: 16,        
+    marginBottom: 16,
     paddingHorizontal: 14,
     fontSize: 15,
   },
@@ -167,16 +190,16 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
   },
   botao: {
-    backgroundColor: '#e11d48',
+    backgroundColor: "#e11d48",
     borderRadius: 8,
     height: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginTop: 10,
   },
   botaoTexto: {
-    color: '#ffffff',
+    color: "#ffffff",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });
