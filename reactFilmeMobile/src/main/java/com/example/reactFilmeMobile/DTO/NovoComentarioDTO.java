@@ -8,7 +8,7 @@ public record NovoComentarioDTO(
         String postagem,
 
         @NotBlank(message = "O ID do filme é obrigatório.")
-        String filmeId,
+        Long filmeId,
 
         @NotBlank(message = "O nome do usuário é obrigatório.")
         String nome) { // Campo adicionado para garantir a consistência com o Model

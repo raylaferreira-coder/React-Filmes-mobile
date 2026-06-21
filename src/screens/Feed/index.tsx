@@ -15,6 +15,7 @@ import { useTheme } from "../../contexts/ThemeContext";
 import { useAuth } from "../../contexts/AuthContext";
 import api from "../../data/api";
 import { getStyles } from "./styles";
+import apiFilmes from "../../data/apiFilmes";
 
 interface PostItem {
   id: number;
@@ -25,18 +26,15 @@ interface PostItem {
   like: number;
 }
 
-const MOVIE_DATA = {
-  titulo: "Duna: Parte Dois",
-  nota: "★ 8.8 / 10",
-  sinopse: "Paul Atreides se une a Chani e aos Fremen enquanto busca vingança contra os conspiradores que destruíram sua família. Uma jornada espiritual e marcial se inicia.",
-  posterUrl: "https://image.tmdb.org/t/p/w500/z669vGOGE8STg8Y89Ias8n9S57c.jpg"
-};
+export default function Feed({ route, navigation }) {
 
-export default function Feed() {
+  const { id: filmeId }= route.params || {};
+  
   const [comment, setComment] = useState<PostItem[]>([]);
   const [likedId, setLikedId] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(true);
   const [novoComentario, setNovoComentario] = useState("");
+  const [dadosFilme, setDadosFilme] = useState<any>(null);
 
   const [editingId, setEditingId] = useState<number | null>(null);
   const [textoEdicao, setTextoEdicao] = useState("");
@@ -58,22 +56,45 @@ export default function Feed() {
 
   const styles = getStyles(colors);
 
+  
+     const carregarDadosDoFeed = async () => {
+  if (!filmeId || filmeId === "undefined") {
+    setLoading(false);
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const [filmeResponse, comentariosResponse] = await Promise.all([
+      apiFilmes.get(`/movie/${filmeId}`),
+   
+      api.get(`/comentario/filme/${filmeId}`) 
+    ]);
+
+    setDadosFilme(filmeResponse.data);
+    setComment(comentariosResponse.data);
+  } catch (err) {
+    console.error("Erro ao carregar dados do feed:", err);
+    Alert.alert("Erro", "Não foi possível carregar os dados deste filme.");
+  } finally {
+    setLoading(false); 
+  }
+};
+
   useEffect(() => {
-    api
-      .get("/comentario")
-      .then((response) => setComment(response.data || []))
-      .catch((error) => console.log("Erro de requisição", error))
-      .finally(() => setLoading(false));
-  }, []);
+    carregarDadosDoFeed();
+  }, [filmeId]);
 
   function handleCreatePost() {
     if (!novoComentario.trim()) return;
 
     const payload = {
-      nome: user?.name || "Usuário", 
+      nome: user?.email || "Usuário", 
       postagem: novoComentario.trim(),
       dataPostagem: new Date().toISOString(),
-      like: 0
+      like: 0,
+      filmeId: filmeId
     };
 
     api.post("/comentario", payload)
@@ -123,45 +144,54 @@ export default function Feed() {
   }
 
   function getInitials(name: string) {
-    if (!name) return "";
+    if (!name) return "U";
     const parts = name.split(" ");
-    if (parts.length > 1) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    if (parts.length > 1 && parts[1][0]) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
     return parts[0][0].toUpperCase();
   }
 
-  const renderHeader = () => (
-    <View>
-      <View style={styles.movieSection}>
-        <Image source={{ uri: MOVIE_DATA.posterUrl }} style={styles.poster} />
-        <Text style={styles.tituloFilme}>{MOVIE_DATA.titulo}</Text>
-        <Text style={styles.notaFilme}>{MOVIE_DATA.nota}</Text>
-        <Text style={styles.sinopseFilme}>{MOVIE_DATA.sinopse}</Text>
-      </View>
+  const renderHeader = () => {
+    if (!dadosFilme) return null;
 
-      <View style={styles.caixaCriarPost}>
-        <Text style={styles.createPostTitle}>Compartilhe sua opinião</Text>
-        <TextInput
-          style={styles.campoTexto}
-          placeholder="O que você achou desse filme?..."
-          placeholderTextColor={colors.subText}
-          multiline
-          value={novoComentario}
-          onChangeText={setNovoComentario}
-        />
-        <View style={styles.botoesForm}>
-          <TouchableOpacity style={styles.btnPublicar} onPress={handleCreatePost}>
-            <Text style={styles.btnPublicarText}>Publicar</Text>
-          </TouchableOpacity>
+    
+    const posterUri = dadosFilme.poster_path 
+      ? `https://image.tmdb.org/t/p/w500${dadosFilme.poster_path}`
+      : dadosFilme.posterUrl || "https://via.placeholder.com/500";
+
+    return (
+      <View>
+        <View style={styles.movieSection}>
+          <Image source={{ uri: posterUri }} style={styles.poster} />
+          <Text style={styles.tituloFilme}>{dadosFilme.title || dadosFilme.nome || dadosFilme.titulo}</Text>
+          <Text style={styles.notaFilme}>★ {(dadosFilme.vote_average || dadosFilme.nota || 0).toFixed(1)} / 10</Text>
+          <Text style={styles.sinopseFilme}>{dadosFilme.overview || dadosFilme.sinopse}</Text>
         </View>
-      </View>
 
-      <View style={styles.divisor} />
-      <Text style={styles.tituloSessao}>Comunidade</Text>
-      {comment.length === 0 && (
-        <Text style={styles.semComentarios}>Nenhum comentário ainda. Seja o primeiro!</Text>
-      )}
-    </View>
-  );
+        <View style={styles.caixaCriarPost}>
+          <Text style={styles.createPostTitle}>Compartilhe sua opinião</Text>
+          <TextInput
+            style={styles.campoTexto}
+            placeholder="O que você achou desse filme?..."
+            placeholderTextColor={colors.subText}
+            multiline
+            value={novoComentario}
+            onChangeText={setNovoComentario}
+          />
+          <View style={styles.botoesForm}>
+            <TouchableOpacity style={styles.btnPublicar} onPress={handleCreatePost}>
+              <Text style={styles.btnPublicarText}>Publicar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={styles.divisor} />
+        <Text style={styles.tituloSessao}>Comunidade</Text>
+        {comment.length === 0 && (
+          <Text style={styles.semComentarios}>Nenhum comentário ainda. Seja o primeiro!</Text>
+        )}
+      </View>
+    );
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
@@ -177,7 +207,7 @@ export default function Feed() {
           contentContainerStyle={styles.listContainer}
           renderItem={({ item }) => {
             const liked = likedId.has(item.id);
-            const isAuthor = item.nome === user?.name; 
+            const isAuthor = item.nome === user?.email; 
             const isEditing = editingId === item.id;
 
             return (
@@ -194,7 +224,7 @@ export default function Feed() {
                   <View style={{ flex: 1 }}>
                     <Text style={styles.authorName}>{item.nome}</Text>
                     <Text style={styles.postDate}>
-                      {new Date(item.dataPostagem).toLocaleDateString("pt-br")}
+                      {item.dataPostagem ? new Date(item.dataPostagem).toLocaleDateString("pt-br") : ""}
                     </Text>
                   </View>
 
@@ -234,7 +264,6 @@ export default function Feed() {
                 <View style={styles.postActions}>
                   <TouchableOpacity style={styles.actionBtn} onPress={() => like(item.id)}>
                     <AntDesign name="like1" color={liked ? colors.likeActive : colors.subText} size={18} />
-                    {/* Mantemos uma cor condicional inline rápida aqui por conta do estado de Like */}
                     <Text style={[styles.actionBtnText, { color: liked ? colors.likeActive : colors.subText }]}>
                       {liked ? item.like + 1 : item.like}
                     </Text>

@@ -29,6 +29,14 @@ public class ComentarioController {
 	@Autowired
 	private ComentarioService comentarioService;
 
+	@Operation(summary = "Listar de comentários pelo id do filme")
+
+	@GetMapping("/{filmeId}")
+	public ResponseEntity<List<Comentario>> listarPorFilme(@PathVariable Long filmeId) {
+	    List<Comentario> comentarios = comentarioService.buscaComentariosPorFilme(filmeId);
+	    return ResponseEntity.ok(comentarios);
+	}
+	
 	@Operation(summary = "Listar de comentários")
 
 	@GetMapping

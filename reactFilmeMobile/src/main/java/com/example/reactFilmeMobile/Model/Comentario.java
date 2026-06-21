@@ -33,13 +33,13 @@ public class Comentario {
 
 	@NotBlank
 	@Column(name = "codigoFilme")
-	private String filmeId; // Amarra o comentário ao ID retornado do TMDB no front
+	private Long filmeId; // Amarra o comentário ao ID retornado do TMDB no front
 
 	public Comentario() {
 	}
 
 	public Comentario(Long id, String nome, String postagem, int like, Instant dataPostagem, String avatarURL,
-			String filmeId) {
+			Long filmeId) {
 		super();
 		this.id = id;
 		this.nome = nome;
@@ -66,11 +66,13 @@ public class Comentario {
 		this.postagem = postagem;
 	}
 
-	public String getFilmeId() {
+
+
+	public Long getFilmeId() {
 		return filmeId;
 	}
 
-	public void setFilmeId(String filmeId) {
+	public void setFilmeId(Long filmeId) {
 		this.filmeId = filmeId;
 	}
 

@@ -17,6 +17,10 @@ public class ComentarioService {
 	@Autowired
 	private ComentarioRepository comentarioRepository;
 
+	public List<Comentario> buscaComentariosPorFilme(Long filmeId) {
+		return comentarioRepository.findByFilmeId(filmeId);
+	}
+	
 	public List<Comentario> buscaComentarios() {
 		return comentarioRepository.findAll();
 	}

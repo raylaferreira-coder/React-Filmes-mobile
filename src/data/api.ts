@@ -9,18 +9,18 @@ const api = axios.create({
 api.interceptors.request.use(
   async (config) => {
     try {
-      const token = await AsyncStorage.getItem("token");
+     
+      const token = await AsyncStorage.getItem('@filmes_api:token');
+      
       if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      } 
+        config.headers['Authorization'] = `Bearer ${token}`;
+      }
+    } catch (error) {
+      console.error('Erro ao injetar o token no header do Axios', error);
     }
-    catch (error) {
-      console.error("Erro ao recuperar o token do AsyncStorage", error);
-    }
-
     return config;
-},
-(error) => {
+  },
+  (error) => {
     return Promise.reject(error);
   }
 );

@@ -4,7 +4,8 @@ import api from '../data/api';
 
 interface UserData {
   email: string;
-  name: string; // Armazena o nome extraído do email
+  name: string; 
+  
 }
 
 interface AuthContextType {
@@ -23,8 +24,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const checkActiveSession = async () => {
       try {
-        const storedUser = await AsyncStorage.getItem('@cinema_app:user');
-        if (storedUser) setUser(JSON.parse(storedUser));
+
+        const storedUser = await AsyncStorage.getItem('@filmes_api:user');
+        const token = await AsyncStorage.getItem('@filmes_api:token');
+
+        if (storedUser && token) {
+          setUser(JSON.parse(storedUser));
+        }
       } catch (error) {
         console.error('Erro ao verificar sessão:', error);
       } finally {
@@ -38,7 +44,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     const formattedEmail = email.trim().toLowerCase();
     
-    // Método split: isola a parte antes do '@' e capitaliza a primeira letra
+   
     const rawName = formattedEmail.split('@')[0];
     const extractedName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
 
@@ -51,17 +57,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const loggedUser: UserData = { email: formattedEmail, name: extractedName };
       setUser(loggedUser);
       
-      await AsyncStorage.setItem('@cinema_app:user', JSON.stringify(loggedUser));
+   
+      await AsyncStorage.setItem('@filmes_api:user', JSON.stringify(loggedUser));
+      
       if (response.data?.token) {
-        await AsyncStorage.setItem('token', response.data.token);
+        await AsyncStorage.setItem('@filmes_api:token', response.data.token);
       }
       return true;
     } catch (error) {
-      // Fallback para o usuário de teste obrigatório do layout
+     
       if (formattedEmail === 'teste@teste.com' && password === '123456') {
         const loggedUser: UserData = { email: formattedEmail, name: 'Teste' };
         setUser(loggedUser);
-        await AsyncStorage.setItem('@cinema_app:user', JSON.stringify(loggedUser));
+        await AsyncStorage.setItem('@filmes_api:user', JSON.stringify(loggedUser));
+        await AsyncStorage.setItem('@filmes_api:token', 'token-mockado-de-teste');
         return true;
       }
       return false;
@@ -73,8 +82,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = async () => {
     try {
       setUser(null);
-      await AsyncStorage.removeItem('@cinema_app:user');
-      await AsyncStorage.removeItem('token');
+      
+      await AsyncStorage.removeItem('@filmes_api:user');
+      await AsyncStorage.removeItem('@filmes_api:token');
     } catch (error) {
       console.error('Erro ao efetuar logout:', error);
     }
