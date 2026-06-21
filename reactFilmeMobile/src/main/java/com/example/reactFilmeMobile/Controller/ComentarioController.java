@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.reactFilmeMobile.DTO.NovoComentarioDTO;
 import com.example.reactFilmeMobile.Model.Comentario;
 import com.example.reactFilmeMobile.Service.ComentarioService;
 
@@ -45,17 +46,17 @@ public class ComentarioController {
 
 	@Operation(summary = "Criar comentaário")
 	@PostMapping
-	public ResponseEntity<Comentario> salvarLogin(@Valid @RequestBody Comentario comentario) {
-		return ResponseEntity.status(HttpStatus.CREATED).body(comentarioService.savarComentario(comentario));
+	public ResponseEntity<Comentario> salvarComentario(@Valid @RequestBody NovoComentarioDTO dto) {
+		return ResponseEntity.status(HttpStatus.CREATED).body(comentarioService.salvar(dto));
 
 	}
 
 	@Operation(summary = "Modificar comentário")
 
 	@PutMapping("/{id}")
-	public ResponseEntity<Comentario> atualizarComentario(@Valid @RequestBody Comentario comentario,
+	public ResponseEntity<Comentario> atualizarComentario(@Valid @RequestBody NovoComentarioDTO dto,
 			@PathVariable Long id) {
-		return ResponseEntity.ok(comentarioService.atualizar(comentario, id));
+		return ResponseEntity.ok(comentarioService.atualizar(dto, id));
 	}
 
 	@Operation(summary = "Deletar comentário")

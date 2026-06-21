@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.reactFilmeMobile.DTO.NovoComentarioDTO;
 import com.example.reactFilmeMobile.Model.Comentario;
 import com.example.reactFilmeMobile.Repository.ComentarioRepository;
 
@@ -24,15 +25,20 @@ public class ComentarioService {
 		return comentarioRepository.findById(id);
 	}
 
-	public Comentario savarComentario(Comentario comentario) {
-		return comentarioRepository.save(comentario);
+	public Comentario salvar(NovoComentarioDTO dto) {
+		Comentario novoComentario = new Comentario();
+
+		novoComentario.setPostagem(dto.postagem());
+		novoComentario.setFilmeId(dto.filmeId());
+
+		return comentarioRepository.save(novoComentario);
 	}
 
-	public Comentario atualizar(Comentario comentario, Long id) {
+	public Comentario atualizar(NovoComentarioDTO dto, Long id) {
 		Comentario comentarioPresente = comentarioRepository.findById(id)
 				.orElseThrow(() -> new RuntimeException("dados não encontrado com o id" + id));
 
-		comentarioPresente.setPostagem(comentario.getPostagem());
+		comentarioPresente.setPostagem(dto.postagem());
 
 		return comentarioRepository.save(comentarioPresente);
 	}

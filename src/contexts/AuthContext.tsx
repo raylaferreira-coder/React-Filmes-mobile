@@ -9,7 +9,7 @@ interface UserData {
 interface AuthContextType {
   user: UserData | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<boolean>; 
+  login: (email: string, password: string) => Promise<boolean>; // Mudado para retornar boolean
   logout: () => Promise<void>;
 }
 
@@ -24,7 +24,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const checkActiveSession = async () => {
       try {
         const storedUser = await AsyncStorage.getItem('@cinema_app:user');
-        const token = await AsyncStorage.getItem('@cinema_app:token');
+        const token = await AsyncStorage.getItem('@cinema_app:token'); // Corrigido a chave aqui
 
         if (storedUser && token) {
           setUser(JSON.parse(storedUser));
@@ -42,7 +42,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     const formattedEmail = email.trim().toLowerCase();
 
-   
+ 
     if (formattedEmail === 'teste@teste.com' && password === '1234') {
       const loggedUser: UserData = { email: formattedEmail };
       try {
@@ -58,9 +58,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
 
-    
+   
     try {
-
+     
       const response = await api.post('/auth/login', {
         email: formattedEmail,
         senha: password
@@ -79,7 +79,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return true;
     } catch (error) {
       console.warn("Falha de autenticação na API", error);
-      throw error;
+      throw error; 
     } finally {
       setIsLoading(false);
     }
