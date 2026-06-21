@@ -16,6 +16,7 @@ interface CardThemeColors {
 
 export const getStyles = (colors: CardThemeColors) => StyleSheet.create({
   statusContainer: {
+    display: "flex",
     justifyContent: "center",
     alignItems: "center",
     paddingVertical: 40,
