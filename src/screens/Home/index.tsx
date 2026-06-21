@@ -1,116 +1,112 @@
-import React from "react";
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { ScrollView, Text, View, Pressable, TextInput } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { NavigationProp } from "../../@types/Navigation";
 import { useTheme } from "../../contexts/ThemeContext";
 import { useAuth } from "../../contexts/AuthContext";
+import { MaterialIcons } from "@expo/vector-icons";
+import { getStyles } from "./styles";
+import MovieGrid from "../../components/MovieGrid";
 
 export default function Home() {
-  // Usando o hook de navegação com a nossa tipagem estrita global
+  const [searchQuery, setSearchQuery] = useState("");
   const navigation = useNavigation<NavigationProp>();
-  
-  // Consumindo os estados globais de tema e autenticação
   const { currentTheme } = useTheme();
   const { user } = useAuth();
 
-  // Definição dinâmica de cores para suporte a Dark/Light mode
   const isDark = currentTheme === 'dark';
   const themeColors = {
     background: isDark ? '#15151a' : '#f3f4f6',
+    cardBg: isDark ? '#1e1e24' : '#ffffff',
+    border: isDark ? '#2e2e38' : '#e5e7eb',
     text: isDark ? '#ffffff' : '#111827',
     subText: isDark ? '#9ca3af' : '#4b5563',
-    buttonSecundario: isDark ? '#2e2e38' : '#e5e7eb',
-    textSecundario: isDark ? '#ffffff' : '#374151',
+    placeholder: isDark ? '#6b7280' : '#9ca3af',
+    primary: '#1d9e75',
+  };
+
+  const styles = getStyles(themeColors);
+
+  const getPrimeiroNome = (nomeCompleto: string) => {
+    if (!nomeCompleto) return "Utilizador";
+    return nomeCompleto.split(" ")[0];
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-      
-      <Text style={[styles.titulo, { color: themeColors.text }]}>
-        Cinema App 🎬
-      </Text>
-      
-      {/* Exibe o nome do utilizador de forma segura obtido da "API" de Login */}
-      <Text style={[styles.subtitulo, { color: themeColors.subText }]}>
-        Olá, {user?.name || "Utilizador"}! Bem-vindo ao catálogo de filmes.
-      </Text>
-
-      {/* Menu de Opções de Navegação */}
-      <View style={styles.menuGrid}>
+    <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
+      <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         
-        <Pressable 
-          style={[styles.botao, { backgroundColor: '#e11d48' }]} 
-          onPress={() => navigation.navigate("PostFeed")}
-        >
-          <Text style={styles.textoBotaoPrincipal}>Ver Feed de Filmes 🍿</Text>
-        </Pressable>
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.saudacao}>Olá, {getPrimeiroNome(user?.name || "")}! 👋</Text>
+            <Text style={styles.subSaudacao}>Bem-vindo de volta ao seu espaço de cinema.</Text>
+          </View>
+        </View>
 
-        <Pressable 
-          style={[styles.botao, { backgroundColor: themeColors.buttonSecundario }]} 
-          onPress={() => navigation.navigate("About")}
-        >
-          <Text style={[styles.textoBotao, { color: themeColors.textSecundario }]}>
-            Sobre o Projeto
+        <View style={{ marginBottom: 24 }}>
+          <TextInput
+            style={{
+              height: 46,
+              borderWidth: 1,
+              borderRadius: 8,
+              paddingHorizontal: 16,
+              fontSize: 15,
+              backgroundColor: themeColors.cardBg,
+              borderColor: themeColors.border,
+              color: themeColors.text
+            }}
+            placeholder="Pesquisar filmes no TMDB..."
+            placeholderTextColor={themeColors.placeholder}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+        </View>
+
+        <View style={styles.bannerDestaque}>
+          <View style={styles.tagDestaque}>
+            <Text style={styles.tagTexto}>EM DESTAQUE</Text>
+          </View>
+          <Text style={styles.tituloDestaque}>Duna: Parte Dois 🪐</Text>
+          <Text style={styles.textoDestaque}>
+            A comunidade está ativa a debater o mais recente sucesso de ficção científica. 
+            Visite o Feed para ler as críticas e deixar a sua nota!
           </Text>
-        </Pressable>
+        </View>
 
-        <Pressable 
-          style={[styles.botao, { backgroundColor: themeColors.buttonSecundario }]} 
-          onPress={() => navigation.navigate("ContactUs")}
-        >
-          <Text style={[styles.textoBotao, { color: themeColors.textSecundario }]}>
-            Fale Conosco
-          </Text>
-        </Pressable>
+        <Text style={styles.seccaoTitulo}>Navegação Rápida</Text>
+        
+        <View style={styles.grelhaAcoes}>
+          
+          <Pressable style={styles.cartaoAcao} onPress={() => navigation.navigate("Feed")}>
+            <MaterialIcons name="forum" size={32} style={styles.iconeAcao} />
+            <Text style={styles.textoAcao}>Feed da Comunidade</Text>
+          </Pressable>
 
-      </View>
-    </View>
+          <Pressable style={styles.cartaoAcao} onPress={() => navigation.navigate("About")}>
+            <MaterialIcons name="info" size={32} style={styles.iconeAcao} />
+            <Text style={styles.textoAcao}>Sobre o App</Text>
+          </Pressable>
+
+          <Pressable style={styles.cartaoAcao} onPress={() => navigation.navigate("ContactUs")}>
+            <MaterialIcons name="mail" size={32} style={styles.iconeAcao} />
+            <Text style={styles.textoAcao}>Fale Conosco</Text>
+          </Pressable>
+
+          <Pressable style={styles.cartaoAcao} onPress={() => navigation.navigate("Feed")}>
+            <MaterialIcons name="movie" size={32} style={styles.iconeAcao} />
+            <Text style={styles.textoAcao}>Filmes Votados</Text>
+          </Pressable>
+
+        </View>
+
+        <Text style={[styles.seccaoTitulo, { marginTop: 32, marginBottom: 4 }]}>
+          {searchQuery ? "Resultados da Busca" : "Filmes Populares"}
+        </Text>
+        
+        <MovieGrid query={searchQuery} />
+
+      </ScrollView>
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-  },
-  titulo: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  subtitulo: {
-    fontSize: 16,
-    marginBottom: 40,
-    textAlign: 'center',
-    paddingHorizontal: 10,
-    lineHeight: 22,
-  },
-  menuGrid: {
-    width: "100%",
-    maxWidth: 320,
-    gap: 14,
-  },
-  botao: {
-    borderRadius: 8,
-    paddingVertical: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  textoBotaoPrincipal: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  textoBotao: {
-    fontSize: 15,
-    fontWeight: '600',
-  },
-});

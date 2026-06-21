@@ -1,5 +1,6 @@
 package com.example.reactFilmeMobile.Service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,7 +19,6 @@ public class ComentarioService {
 
 	public List<Comentario> buscaComentarios() {
 		return comentarioRepository.findAll();
-
 	}
 
 	public Optional<Comentario> buscaComentario(Long id) {
@@ -30,15 +30,18 @@ public class ComentarioService {
 
 		novoComentario.setPostagem(dto.postagem());
 		novoComentario.setFilmeId(dto.filmeId());
+		novoComentario.setNome(dto.nome()); // Mapeamento adicionado
+		novoComentario.setDataPostagem(Instant.now()); // Sugestão: populando a data automaticamente
 
 		return comentarioRepository.save(novoComentario);
 	}
 
 	public Comentario atualizar(NovoComentarioDTO dto, Long id) {
 		Comentario comentarioPresente = comentarioRepository.findById(id)
-				.orElseThrow(() -> new RuntimeException("dados não encontrado com o id" + id));
+				.orElseThrow(() -> new RuntimeException("Dados não encontrados com o id " + id));
 
 		comentarioPresente.setPostagem(dto.postagem());
+		comentarioPresente.setNome(dto.nome()); // Mapeamento adicionado
 
 		return comentarioRepository.save(comentarioPresente);
 	}
@@ -46,5 +49,4 @@ public class ComentarioService {
 	public void deletar(Long id) {
 		comentarioRepository.deleteById(id);
 	}
-
 }

@@ -1,51 +1,44 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export type ThemeMode = 'system' | 'light' | 'dark';
+type ThemeMode = 'light' | 'dark';
 
 interface ThemeContextType {
-  themeMode: ThemeMode;
-  currentTheme: 'light' | 'dark';
-  setThemeMode: (mode: ThemeMode) => Promise<void>;
+  currentTheme: ThemeMode;
+  setThemeMode: (theme: ThemeMode) => Promise<void>;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const systemColorScheme = useColorScheme();
-  const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
+  const [currentTheme, setCurrentTheme] = useState<ThemeMode>('light');
 
-  // preferências do dispositivo
   useEffect(() => {
-    const loadTheme = async () => {
+    const loadStoredTheme = async () => {
       try {
-        const savedTheme = await AsyncStorage.getItem('@cinema_app:theme');
-        if (savedTheme) {
-          setThemeModeState(savedTheme as ThemeMode);
+        const storedTheme = await AsyncStorage.getItem('@cinema_app:theme');
+        if (storedTheme === 'light' || storedTheme === 'dark') {
+          setCurrentTheme(storedTheme);
         }
       } catch (error) {
-        console.error('Erro ao carregar o tema:', error);
+        console.error('Erro ao carregar tema:', error);
       }
     };
-    loadTheme();
+    loadStoredTheme();
   }, []);
 
-  const setThemeMode = async (mode: ThemeMode) => {
+  // Modifica o estado do tema global e salva a preferência localmente
+  const setThemeMode = async (theme: ThemeMode) => {
     try {
-      setThemeModeState(mode);
-      await AsyncStorage.setItem('@cinema_app:theme', mode);
+      setCurrentTheme(theme);
+      await AsyncStorage.setItem('@cinema_app:theme', theme);
     } catch (error) {
-      console.error('Erro ao guardar o tema:', error);
+      console.error('Erro ao salvar tema:', error);
     }
   };
 
-  const currentTheme = themeMode === 'system'
-    ? (systemColorScheme || 'dark')
-    : themeMode;
-
   return (
-    <ThemeContext.Provider value={{ themeMode, currentTheme, setThemeMode }}>
+    <ThemeContext.Provider value={{ currentTheme, setThemeMode }}>
       {children}
     </ThemeContext.Provider>
   );
@@ -53,8 +46,6 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
 export const useTheme = () => {
   const context = useContext(ThemeContext);
-  if (!context) {
-    throw new Error('useTheme deve ser usado dentro de um ThemeProvider');
-  }
+  if (!context) throw new Error('useTheme deve ser usado dentro de um ThemeProvider');
   return context;
 };

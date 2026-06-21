@@ -4,8 +4,13 @@ import jakarta.validation.constraints.NotBlank;
 
 public record NovoComentarioDTO(
 
-                @NotBlank(message = "O comentário deve possuir um conteúdo.") String postagem,
+        @NotBlank(message = "O comentário deve possuir um conteúdo.")
+        String postagem,
 
-                @NotBlank() String filmeId) {
+        @NotBlank(message = "O ID do filme é obrigatório.")
+        String filmeId,
+
+        @NotBlank(message = "O nome do usuário é obrigatório.")
+        String nome) { // Campo adicionado para garantir a consistência com o Model
 
 }

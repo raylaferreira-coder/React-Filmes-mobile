@@ -24,14 +24,13 @@ public class LoginService implements UserDetailsService {
         return repository.findById(id);
     }
 
-    public Login savarLogin(Login login) {
+    // Método renomeado de savarLogin para salvarLogin
+    public Login salvarLogin(Login login) {
         return repository.save(login);
     }
 
     public Login atualizar(Login login, Long id) {
-
         login.setId(id);
-
         return repository.save(login);
     }
 

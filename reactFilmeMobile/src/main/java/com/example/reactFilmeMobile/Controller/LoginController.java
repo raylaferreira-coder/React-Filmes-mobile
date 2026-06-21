@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.reactFilmeMobile.DTO.AuthRequestDTO;
+import com.example.reactFilmeMobile.DTO.TokenResponseDTO;
 import com.example.reactFilmeMobile.Model.Login;
 import com.example.reactFilmeMobile.Security.JwtService;
 import com.example.reactFilmeMobile.Service.LoginService;
@@ -34,30 +36,31 @@ public class LoginController {
 
     @Operation(summary = "Autenticar usuário")
     @PostMapping("/login")
-    public ResponseEntity<String> autenticar(@RequestBody Login login) {
+    public ResponseEntity<?> autenticar(@Valid @RequestBody AuthRequestDTO authDto) {
 
-        Login usuario = loginService.buscarPorEmail(login.getEmail());
+        Login usuario = loginService.buscarPorEmail(authDto.email());
 
         if (usuario == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("Usuário não encontrado");
         }
 
-        if (!usuario.getSenha().equals(login.getSenha())) {
+        if (!usuario.getSenha().equals(authDto.senha())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("Senha inválida");
         }
 
         String token = jwtService.gerarToken(usuario.getEmail());
 
-        return ResponseEntity.ok(token);
+        return ResponseEntity.ok(new TokenResponseDTO(token));
     }
 
     @Operation(summary = "Cadastrar usuário")
     @PostMapping("/cadastro")
     public ResponseEntity<Login> salvarLogin(@Valid @RequestBody Login login) {
+        // CORRIGIDO: Agora chamando o método salvarLogin corretamente
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(loginService.savarLogin(login));
+                .body(loginService.salvarLogin(login));
     }
 
     @Operation(summary = "Listar usuários")

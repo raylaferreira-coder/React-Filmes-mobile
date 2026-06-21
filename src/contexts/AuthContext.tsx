@@ -4,12 +4,13 @@ import api from '../data/api';
 
 interface UserData {
   email: string;
+  name: string; // Armazena o nome extraído do email
 }
 
 interface AuthContextType {
   user: UserData | null;
   isLoading: boolean;
-  login: (email: string, senha: string) => Promise<void>;
+  login: (email: string, senha: string) => Promise<boolean>;
   logout: () => Promise<void>;
 }
 
@@ -19,16 +20,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  
   useEffect(() => {
     const checkActiveSession = async () => {
       try {
         const storedUser = await AsyncStorage.getItem('@cinema_app:user');
-        const token = await AsyncStorage.getItem('token');
-
-        if (storedUser && token) {
-          setUser(JSON.parse(storedUser));
-        }
+        if (storedUser) setUser(JSON.parse(storedUser));
       } catch (error) {
         console.error('Erro ao verificar sessão:', error);
       } finally {
@@ -40,72 +36,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
-    const formattedEmail = email.trim().toLocaleLowerCase()
+    const formattedEmail = email.trim().toLowerCase();
     
+    // Método split: isola a parte antes do '@' e capitaliza a primeira letra
+    const rawName = formattedEmail.split('@')[0];
+    const extractedName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+
     try {
-      
       const response = await api.post('/auth/login', {
-        email: email.trim().toLowerCase(),
-        senha: senha
-      });
-
-     
-      const { token, id, email: userEmail } = response.data;
-
-    try {
-      
-        const response = await api.post('/usuarios/login', {
-          email: formattedEmail,
-          senha: password
-      });
-      
-      const { token,  email: userEmail } = response.data;
-     
-      const loggedUser: UserData = {
-        email: userEmail || formattedEmail,
-      };
-
-      setUser(loggedUser);
-      await AsyncStorage.setItem('@cinema_app:user', JSON.stringify(loggedUser));
-      await AsyncStorage.setItem('@cinema_app:token', token)
-
-      setIsLoading(false);
-      return true;
-    }catch (error) {
-      console.warn("Falha de autenticação na API", error)
-    }
-
-    if (formattedEmail === 'teste@teste.com' && password === '123456') {
-      const loggedUser: UserData = {
         email: formattedEmail,
-      }  
-      try {
+        senha: password
+      });
+      
+      const loggedUser: UserData = { email: formattedEmail, name: extractedName };
+      setUser(loggedUser);
+      
+      await AsyncStorage.setItem('@cinema_app:user', JSON.stringify(loggedUser));
+      if (response.data?.token) {
+        await AsyncStorage.setItem('token', response.data.token);
+      }
+      return true;
+    } catch (error) {
+      // Fallback para o usuário de teste obrigatório do layout
+      if (formattedEmail === 'teste@teste.com' && password === '123456') {
+        const loggedUser: UserData = { email: formattedEmail, name: 'Teste' };
         setUser(loggedUser);
         await AsyncStorage.setItem('@cinema_app:user', JSON.stringify(loggedUser));
-        setIsLoading(false);
-        return true; // login efetuado
-      } catch (storageError) {
-        console.error('Erro ao guardar sessão do usuario teste:', 'Erro ao guardar sessão do usuário mock:', storageError);
+        return true;
       }
-    };
-
-    
-      setUser(loggedUser);
-
-    } catch (error) {
-   
-      throw error;
+      return false;
     } finally {
       setIsLoading(false);
     }
   };
 
- 
   const logout = async () => {
     try {
       setUser(null);
       await AsyncStorage.removeItem('@cinema_app:user');
-      await AsyncStorage.removeItem('token'); 
+      await AsyncStorage.removeItem('token');
     } catch (error) {
       console.error('Erro ao efetuar logout:', error);
     }
@@ -120,8 +89,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error
-  }
+  if (!context) throw new Error('useAuth deve ser usado dentro de um AuthProvider');
   return context;
 };

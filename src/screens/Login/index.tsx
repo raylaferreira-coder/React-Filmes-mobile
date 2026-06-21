@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { 
-  StyleSheet, 
   Text, 
   TextInput, 
   View, 
@@ -14,6 +13,7 @@ import { useNavigation } from "@react-navigation/native";
 import { NavigationProp } from "../../@types/Navigation";
 import { useTheme } from "../../contexts/ThemeContext";
 import { useAuth } from "../../contexts/AuthContext"; 
+import { getStyles } from "./styles"; 
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -21,6 +21,8 @@ export default function Login() {
   const [erro, setErro] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   
+  const passwordInputRef = useRef<TextInput>(null);
+
   const navigation = useNavigation<NavigationProp>();
   const { currentTheme } = useTheme();
   const { login } = useAuth(); 
@@ -36,8 +38,10 @@ export default function Login() {
     placeholder: isDark ? '#6b7280' : '#9ca3af',
   };
 
+  const styles = getStyles(themeColors);
+
   function handleLogin() {
-    if (!email || !password) {
+    if (!email.trim() || !password) {
       Alert.alert("Erro", "Preencha todos os campos.");
       return;
     }
@@ -45,36 +49,37 @@ export default function Login() {
     setIsLoading(true);
     setErro("");
 
-    
-    login(email, password)
-      .then(() => {
+    login(email.trim(), password)
+      .then((sucesso) => {
         setIsLoading(false);
-   
-        navigation.navigate("Home"); 
+        if (sucesso) {
+          navigation.navigate("DrawerNavigator"); 
+        } else {
+          setErro("Usuário ou senha inválidos.");
+          Alert.alert("Erro no Login", "Usuário ou senha inválidos.");
+        }
       })
       .catch((err) => {
         setIsLoading(false);
-        
-        const mensagemErro = err.response?.data?.message || "Usuário ou senha inválidos.";
+        const mensagemErro = err.response?.data?.message || "Falha na conexão com o servidor.";
         setErro(mensagemErro);
         Alert.alert("Erro no Login", mensagemErro);
       });
   }
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <View style={[styles.loginCard, { backgroundColor: themeColors.cardBg, borderColor: themeColors.border }]}>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.loginCard}>
         
-        <Text style={[styles.titleText, { color: themeColors.text }]}>Login</Text>
+        <Text style={styles.titleText}>Login</Text>
         
-      
         {erro ? <Text style={styles.erroTexto}>{erro}</Text> : null}
         
-       
-        <View style={[styles.inputRow, { backgroundColor: themeColors.inputBg, borderColor: themeColors.border }]}>
+        <View style={styles.inputRow}>
+          {/* Mantemos as propriedades de ícone e placeholder que exigem string direta do tema */}
           <MaterialIcons name="email" size={22} color={themeColors.subText} style={styles.icon} />
           <TextInput   
-            style={[styles.input, { color: themeColors.text }]} 
+            style={styles.input} 
             placeholder="E-mail" 
             placeholderTextColor={themeColors.placeholder}
             onChangeText={setEmail} 
@@ -82,13 +87,17 @@ export default function Login() {
             autoCapitalize="none"
             keyboardType="email-address"
             editable={!isLoading} 
+            returnKeyType="next"
+            onSubmitEditing={() => passwordInputRef.current?.focus()}
+            blurOnSubmit={false}
           />
         </View>
        
-        <View style={[styles.inputRow, { backgroundColor: themeColors.inputBg, borderColor: themeColors.border }]}>
+        <View style={styles.inputRow}>
           <MaterialIcons name="lock" size={22} color={themeColors.subText} style={styles.icon} />
           <TextInput 
-            style={[styles.input, { color: themeColors.text }]}
+            ref={passwordInputRef}
+            style={styles.input}
             placeholder="Senha" 
             placeholderTextColor={themeColors.placeholder}
             secureTextEntry={true}
@@ -96,10 +105,11 @@ export default function Login() {
             value={password}
             autoCapitalize="none"
             editable={!isLoading}
+            returnKeyType="done"
+            onSubmitEditing={handleLogin}
           /> 
         </View>
 
-        
         <Pressable 
           style={[styles.botaoEntrar, { opacity: isLoading ? 0.7 : 1 }]} 
           onPress={handleLogin}
@@ -112,79 +122,10 @@ export default function Login() {
           )}
         </Pressable>
 
-        <Text style={[styles.dicaTexto, { color: themeColors.placeholder }]}>
+        <Text style={styles.dicaTexto}>
           Dica para teste: teste@teste.com | 123456
         </Text>
       </View>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-  },
-  loginCard: {
-    width: "100%", 
-    maxWidth: 380,
-    borderRadius: 12,
-    padding: 28, 
-    borderWidth: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 3,
-  },
-  titleText: {
-    textAlign: 'center',
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginBottom: 24,
-  },
-  erroTexto: {
-    color: '#ef4444',
-    textAlign: 'center',
-    marginBottom: 16,
-    fontSize: 14,
-  },
-  inputRow: {
-    flexDirection: 'row',    
-    alignItems: 'center',    
-    borderWidth: 1,
-    borderRadius: 8,
-    height: 48,
-    marginBottom: 16,        
-    paddingHorizontal: 12,
-  },
-  icon: { 
-    marginRight: 10 
-  },
-  input: {
-    flex: 1,                  
-    height: '100%',
-    fontSize: 15,
-  },
-  botaoEntrar: {
-    backgroundColor: '#e11d48',
-    borderRadius: 8,
-    height: 46,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  botaoTexto: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  dicaTexto: {
-    fontSize: 11,
-    textAlign: 'center',
-    marginTop: 15,
-    fontStyle: 'italic',
-  }
-});

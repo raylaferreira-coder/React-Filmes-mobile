@@ -29,17 +29,19 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         @Override
         protected void doFilterInternal(
-                        HttpServletRequest request,
-                        HttpServletResponse response,
-                        FilterChain chain)
-                        throws ServletException, IOException {
+                HttpServletRequest request,
+                HttpServletResponse response,
+                FilterChain chain)
+                throws ServletException, IOException {
 
                 String path = request.getRequestURI();
 
-                if (path.startsWith("/login/auth") ||
-                                request.getMethod().equals("POST") && path.equals("/login") ||
-                                path.startsWith("/swagger-ui") ||
-                                path.startsWith("/v3/api-docs")) {
+                // Rota corrigida para incluir os endpoints reais de login e cadastro
+                if (path.startsWith("/usuarios/login") ||
+                        path.startsWith("/usuarios/cadastro") ||
+                        path.startsWith("/swagger-ui") ||
+                        path.startsWith("/v3/api-docs") ||
+                        path.startsWith("/h2-console")) {
                         chain.doFilter(request, response);
                         return;
                 }
@@ -56,53 +58,51 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 String email = jwtService.validarToken(token);
 
                 if (email == null) {
-
                         enviarErro(
-                                        response,
-                                        HttpStatus.UNAUTHORIZED,
-                                        "Token inválido ou expirado.");
-
+                                response,
+                                HttpStatus.UNAUTHORIZED,
+                                "Token inválido ou expirado.");
                         return;
                 }
 
                 if (SecurityContextHolder
-                                .getContext()
-                                .getAuthentication() == null) {
+                        .getContext()
+                        .getAuthentication() == null) {
 
                         UserDetails usuario = loginService.loadUserByUsername(email);
 
                         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                                        usuario,
-                                        null,
-                                        usuario.getAuthorities());
+                                usuario,
+                                null,
+                                usuario.getAuthorities());
 
                         auth.setDetails(
-                                        new WebAuthenticationDetailsSource()
-                                                        .buildDetails(request));
+                                new WebAuthenticationDetailsSource()
+                                        .buildDetails(request));
 
                         SecurityContextHolder
-                                        .getContext()
-                                        .setAuthentication(auth);
+                                .getContext()
+                                .setAuthentication(auth);
                 }
 
                 chain.doFilter(request, response);
         }
 
         private void enviarErro(
-                        HttpServletResponse response,
-                        HttpStatus status,
-                        String mensagem)
-                        throws IOException {
+                HttpServletResponse response,
+                HttpStatus status,
+                String mensagem)
+                throws IOException {
 
                 response.setStatus(status.value());
                 response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");
 
                 response.getWriter().write(
-                                "{\"status\":"
-                                                + status.value()
-                                                + ",\"mensagem\":\""
-                                                + mensagem
-                                                + "\"}");
+                        "{\"status\":"
+                                + status.value()
+                                + ",\"mensagem\":\""
+                                + mensagem
+                                + "\"}");
         }
 }

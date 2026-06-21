@@ -1,75 +1,46 @@
-import { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  StyleSheet,
-} from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import { useTheme } from "../../contexts/ThemeContext";
 
 interface PostFormProps {
-  onEnviar: (data: { postagem: string }) => void;
+  value: string;
+  onChangeText: (text: string) => void;
+  onSubmit: () => void;
 }
 
-export default function PostForm({
-  onEnviar,
-}: PostFormProps) {
-  const [postagem, setPostagem] = useState("");
-  const [erro, setErro] = useState("");
+export default function PostForm({ value, onChangeText, onSubmit }: PostFormProps) {
+  const { currentTheme } = useTheme();
+  const isDark = currentTheme === "dark";
 
-  const handlePublicar = () => {
-    if (!postagem.trim()) {
-      setErro("Escreva algo antes de publicar.");
-      return;
-    }
-
-    onEnviar({
-      postagem: postagem.trim(),
-    });
-
-    setPostagem("");
-    setErro("");
+  const themeColors = {
+    cardBg: isDark ? "#1e1e24" : "#ffffff",
+    border: isDark ? "#2e2e38" : "#e5e7eb",
+    text: isDark ? "#ffffff" : "#111827",
+    placeholder: isDark ? "#6b7280" : "#9ca3af",
+    inputBg: isDark ? "#15151a" : "#f9fafb",
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>
-        Nova publicação
-      </Text>
-
+    <View style={[styles.container, { backgroundColor: themeColors.cardBg, borderColor: themeColors.border }]}>
+      <Text style={[styles.title, { color: themeColors.text }]}>Compartilhe sua opinião</Text>
+      
       <TextInput
         style={[
           styles.input,
-          erro ? styles.inputError : null,
+          { backgroundColor: themeColors.inputBg, color: themeColors.text, borderColor: themeColors.border }
         ]}
-        placeholder="O que está a pensar sobre este filme?"
-        multiline
-        value={postagem}
-        onChangeText={(texto) => {
-          setPostagem(texto);
-
-          if (erro && texto.trim()) {
-            setErro("");
-          }
-        }}
-        textAlignVertical="top"
+        placeholder="O que você achou desse filme?..."
+        placeholderTextColor={themeColors.placeholder}
+        multiline={true}
+        numberOfLines={4}
+        value={value}
+        onChangeText={onChangeText}
+        textAlignVertical="top" // Alinhamento consistente para topo no Android e iOS
       />
 
-      {erro ? (
-        <Text style={styles.error}>
-          {erro}
-        </Text>
-      ) : null}
-
-      <View style={styles.buttonContainer}>
-        <Pressable
-          style={styles.publishButton}
-          onPress={handlePublicar}
-        >
-          <Text style={styles.publishText}>
-            Publicar
-          </Text>
-        </Pressable>
+      <View style={styles.actions}>
+        <TouchableOpacity style={styles.submitBtn} onPress={onSubmit}>
+          <Text style={styles.submitBtnText}>Publicar</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -77,51 +48,36 @@ export default function PostForm({
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
+    padding: 16,
     borderRadius: 12,
-    backgroundColor: "#FFF",
-    marginBottom: 20,
-  },
-
-  title: {
-    fontSize: 20,
-    fontWeight: "600",
+    borderWidth: 1,
     marginBottom: 16,
   },
-
+  title: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 12,
+  },
   input: {
-    minHeight: 120,
+    minHeight: 80,
     borderWidth: 1,
-    borderColor: "#CCC",
     borderRadius: 8,
     padding: 12,
-    fontSize: 16,
+    fontSize: 15,
   },
-
-  inputError: {
-    borderColor: "#FF4D4F",
-  },
-
-  error: {
-    color: "#FF4D4F",
-    marginTop: 8,
-    fontSize: 14,
-  },
-
-  buttonContainer: {
-    alignItems: "flex-end",
+  actions: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
     marginTop: 12,
   },
-
-  publishButton: {
-    backgroundColor: "#1D9E75",
-    paddingHorizontal: 24,
+  submitBtn: {
+    backgroundColor: "#1d9e75", 
     paddingVertical: 10,
+    paddingHorizontal: 20,
     borderRadius: 6,
   },
-
-  publishText: {
-    color: "#FFF",
+  submitBtnText: {
+    color: "#ffffff",
     fontWeight: "bold",
     fontSize: 15,
   },

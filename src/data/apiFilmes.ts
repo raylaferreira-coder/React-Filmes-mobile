@@ -4,7 +4,8 @@ const apiFilmes = axios.create({
   baseURL: "https://api.themoviedb.org/3",
   headers: {
     accept: 'application/json',
-    Authorization: `Bearer ${import.meta.env.VITE_TMDB_TOKEN}`
+    // Alterado de import.meta.env.VITE_TMDB_TOKEN para process.env.EXPO_PUBLIC_TMDB_TOKEN
+    Authorization: `Bearer ${process.env.EXPO_PUBLIC_TMDB_TOKEN}`
   },
   params: {
     language: "pt-BR",

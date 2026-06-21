@@ -1,114 +1,76 @@
 import React, { useState } from "react";
-import { View, TextInput, TouchableOpacity, Text, StyleSheet } from "react-native";
+import { View, TextInput, StyleSheet, TouchableOpacity } from "react-native";
+import { Feather } from "@expo/vector-icons";
 import { useTheme } from "../../contexts/ThemeContext";
 
 interface SearchProps {
-  onSearch: (query: string | null) => void;
+  onSearch: (query: string) => void;
 }
 
 export default function Search({ onSearch }: SearchProps) {
-  const [query, setQuery] = useState("");
-
+  const [text, setText] = useState("");
   const { currentTheme } = useTheme();
-  const isLight = currentTheme === "light";
+  const isDark = currentTheme === "dark";
 
-  const colors = {
-    text: isLight ? "#333333" : "#ffffff",
-    border: isLight ? "rgba(128, 128, 128, 0.4)" : "rgba(255, 255, 255, 0.2)",
-    inputBg: isLight ? "#ffffff" : "#2a2a2a",
-    placeholder: isLight ? "#888888" : "#999999",
+  const themeColors = {
+    bg: isDark ? "#1e1e24" : "#ffffff",
+    border: isDark ? "#2e2e38" : "#e5e7eb",
+    text: isDark ? "#ffffff" : "#111827",
+    placeholder: isDark ? "#6b7280" : "#9ca3af",
+    icon: isDark ? "#9ca3af" : "#6b7280",
   };
 
-  function handleChange(valor: string) {
-    setQuery(valor);
-    if (valor.trim() === "") {
-      onSearch(null);
-    }
-  }
+  const handleChange = (value: string) => {
+    setText(value);
+    onSearch(value); // Dispara o filtro em tempo real no componente pai
+  };
 
-  function handleSubmit() {
-    if (query.trim() !== "") {
-      onSearch(query.trim());
-    }
-  }
-
-  function handleLimpar() {
-    setQuery("");
-    onSearch(null);
-  }
+  const handleClear = () => {
+    setText("");
+    onSearch(""); // Reseta a lista ao limpar o campo
+  };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.form}>
-        <TextInput
-          style={[
-            styles.input,
-            { backgroundColor: colors.inputBg, color: colors.text, borderColor: colors.border },
-          ]}
-          placeholder="Buscar filme por nome..."
-          placeholderTextColor={colors.placeholder}
-          value={query}
-          onChangeText={handleChange}
-          onSubmitEditing={handleSubmit}
-          returnKeyType="search"
-        />
-        <TouchableOpacity style={styles.btnBuscar} onPress={handleSubmit}>
-          <Text style={styles.btnBuscarText}>Buscar</Text>
+    <View style={[styles.container, { backgroundColor: themeColors.bg, borderColor: themeColors.border }]}>
+      <Feather name="search" size={18} color={themeColors.icon} style={styles.searchIcon} />
+      
+      <TextInput
+        style={[styles.input, { color: themeColors.text }]}
+        placeholder="Pesquisar na comunidade..."
+        placeholderTextColor={themeColors.placeholder}
+        value={text}
+        onChangeText={handleChange}
+        autoCapitalize="none"
+      />
+
+      {text.length > 0 && (
+        <TouchableOpacity onPress={handleClear} style={styles.clearButton}>
+          <Feather name="x" size={16} color={themeColors.icon} />
         </TouchableOpacity>
-        {query.length > 0 && (
-          <TouchableOpacity
-            style={[styles.btnLimpar, { borderColor: colors.border }]}
-            onPress={handleLimpar}
-          >
-            <Text style={[styles.btnLimparText, { color: colors.text }]}>✕</Text>
-          </TouchableOpacity>
-        )}
-      </View>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    alignItems: "center",
-  },
-  form: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
-    width: "100%",
-    maxWidth: 600,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    height: 44,
+    marginBottom: 16,
+  },
+  searchIcon: {
+    marginRight: 8,
   },
   input: {
     flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    fontSize: 15,
-    borderRadius: 8,
-    borderWidth: 1,
-  },
-  btnBuscar: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    backgroundColor: "#0070f3",
-    borderRadius: 8,
-  },
-  btnBuscarText: {
-    color: "#fff",
-    fontWeight: "bold",
+    height: "100%",
     fontSize: 15,
   },
-  btnLimpar: {
-    width: 44,
-    height: 44,
-    borderWidth: 1,
-    borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  btnLimparText: {
-    fontSize: 18,
+  clearButton: {
+    padding: 4,
   },
 });
