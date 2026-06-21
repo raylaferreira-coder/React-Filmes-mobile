@@ -4,12 +4,13 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import { NavigationContainer } from '@react-navigation/native';
 import { useTheme } from '../contexts/ThemeContext';
 
-import Header from '../components/Header';
+
 import Login from '../screens/Login';
 import Home from '../screens/Home';
 import Feed from '../screens/Feed';
 import About from '../screens/About';
 import ContactUs from '../screens/ContactUs';
+import Header from '../Components/Header/Index';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();

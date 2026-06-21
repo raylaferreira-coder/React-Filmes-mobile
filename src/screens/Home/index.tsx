@@ -5,9 +5,11 @@ import { useNavigation } from "@react-navigation/native";
 import { NavigationProp } from "../../@types/Navigation";
 import { useTheme } from "../../contexts/ThemeContext";
 import { useAuth } from "../../contexts/AuthContext";
-import { MaterialIcons } from "@expo/vector-icons";
+
 import { getStyles } from "./styles";
-import MovieGrid from "../../components/MovieGrid";
+import MovieGrid from "../../Components/MovieGrid";
+import { MaterialIcons } from "@expo/vector-icons";
+
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
