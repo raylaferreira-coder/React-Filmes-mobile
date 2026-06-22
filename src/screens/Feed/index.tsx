@@ -218,7 +218,6 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     paddingHorizontal: 15,
   },
-
   movieSection: {
     padding: 15,
     borderRadius: 12,
@@ -297,7 +296,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginVertical: 10,
   },
-
   postCard: {
     borderWidth: 1,
     borderRadius: 10,
