@@ -5,13 +5,14 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 // Rotas primárias do fluxo de pilhas (Stack)
 export type RootStackParamList = {
   Login: undefined;
-  DrawerNavigator: undefined; // Envelopa o fluxo de telas autenticadas
+  DrawerNavigator: undefined;
 };
 
 // Rotas internas do menu lateral (Drawer)
 export type DrawerParamList = {
   Home: undefined;
-  Feed: undefined;
+  // Corrigido: Feed agora aceita um parâmetro id opcional
+  Feed: { id?: number } | undefined; 
   About: undefined;
   ContactUs: undefined;
 };

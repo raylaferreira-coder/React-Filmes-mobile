@@ -1,11 +1,11 @@
 // este aqui é o antigo card
 
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, TouchableOpacity, FlatList, ActivityIndicator } from "react-native";
+import { View, Text, Image, TouchableOpacity, FlatList, ActivityIndicator, useWindowDimensions } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "../../contexts/ThemeContext";
 import apiFilmes from "../../data/apiFilmes";
-import { getStyles, NUM_COLUNAS, ESPACAMENTO } from "./styles";
+import { getStyles } from "./styles";
 
 interface Filme {
   id: number;
@@ -15,20 +15,17 @@ interface Filme {
 
 interface CardProps {
   query: string | null;
+  ListHeaderComponent?: React.ReactElement;
+  contentContainerStyle?: any;
 }
 
-export default function MovieGrid({ query }: CardProps) {
+export default function MovieGrid({ query, ListHeaderComponent, contentContainerStyle }: CardProps) {
   const [filmes, setFilmes] = useState<Filme[]>([]);
   const [loading, setLoading] = useState(true);
-  const [semResultado, setSemResultado] = useState(false);
-
-  let navigation: any = null;
-  try {
-    navigation = useNavigation<any>();
-  } catch (e) {
-    navigation = null;
-  }
-
+  const { width } = useWindowDimensions();
+  
+  const numColumns = width < 400 ? 1 : 2;
+  const navigation = useNavigation<any>();
   const { currentTheme } = useTheme();
   const isLight = currentTheme === "light";
 
@@ -45,99 +42,46 @@ export default function MovieGrid({ query }: CardProps) {
 
   useEffect(() => {
     let ativo = true;
-
     async function carregarFilmes() {
       setLoading(true);
-      setSemResultado(false);
-
       try {
-        let resultados: Filme[] = [];
         const buscando = query && query.trim() !== "";
-
-        if (buscando) {
-          const response = await apiFilmes.get("/search/movie", {
-            params: { query: query!.trim(), page: 1 },
-          });
-          resultados = response.data.results || [];
-        } else {
-          const response = await apiFilmes.get("/movie/popular", {
-            params: { page: 1 },
-          });
-          resultados = response.data.results || [];
-        }
-
-        if (ativo) {
-          setFilmes(resultados);
-          setSemResultado(resultados.length === 0);
-        }
-      } catch (error: any) {
-        console.log("Erro ao carregar filmes:", error.message);
-        if (ativo) setSemResultado(true);
+        const response = await apiFilmes.get(buscando ? "/search/movie" : "/movie/popular", {
+          params: buscando ? { query: query!.trim(), page: 1 } : { page: 1 },
+        });
+        if (ativo) setFilmes(response.data.results || []);
+      } catch (error) {
+        console.error(error);
       } finally {
         if (ativo) setLoading(false);
       }
     }
-
     carregarFilmes();
-    return () => {
-      ativo = false;
-    };
+    return () => { ativo = false; };
   }, [query]);
 
-  function abrirFilme(id: number) {
-    if (navigation) {
-      navigation.navigate("Feed", { id });
-    } else {
-      console.log("Navegação indisponível neste teste. Filme tocado:", id);
-    }
-  }
-
-  if (loading) {
-    return (
-      <View style={styles.statusContainer}>
-        <ActivityIndicator size="large" color={colors.primary} />
-        <Text style={styles.statusText}>Carregando filmes...</Text>
-      </View>
-    );
-  }
-
-  if (semResultado) {
-    return (
-      <View style={styles.statusContainer}>
-        <Text style={styles.statusText}>
-          Nenhum filme encontrado{query ? ` para "${query}"` : ""}.
-        </Text>
-      </View>
-    );
-  }
+  if (loading) return <View style={styles.statusContainer}><ActivityIndicator size="large" color={colors.primary} /></View>;
 
   return (
     <FlatList
       data={filmes}
+      key={numColumns.toString()}
+      numColumns={numColumns}
       keyExtractor={(item) => item.id.toString()}
-      numColumns={NUM_COLUNAS}
-      scrollEnabled={false} // evitando quebra do scrol
-      contentContainerStyle={styles.galeria}
-      columnWrapperStyle={styles.columnWrapper}
+      ListHeaderComponent={ListHeaderComponent}
+      contentContainerStyle={contentContainerStyle || styles.galeria}
+      columnWrapperStyle={numColumns > 1 ? styles.columnWrapper : null}
       renderItem={({ item }) => (
         <TouchableOpacity
-          style={styles.card}
-          onPress={() => abrirFilme(item.id)}
+          style={[styles.card, { width: numColumns === 1 ? '100%' : styles.card.width }]}
+          onPress={() => navigation.navigate("Feed", { id: item.id })}
           activeOpacity={0.8}
         >
-          <Text style={styles.titulo} numberOfLines={2}>
-            {item.title}
-          </Text>
-          
+          <Text style={styles.titulo} numberOfLines={2}>{item.title}</Text>
           {item.poster_path ? (
-            <Image
-              source={{ uri: `https://image.tmdb.org/t/p/w500${item.poster_path}` }}
-              style={styles.poster}
-            />
+            <Image source={{ uri: `https://image.tmdb.org/t/p/w500${item.poster_path}` }} style={styles.poster} />
           ) : (
-            <View style={styles.semFoto}>
-              <Text style={styles.semFotoTexto}>Sem Imagem</Text>
-            </View>
+            <View style={styles.semFoto}><Text style={styles.semFotoTexto}>Sem Imagem</Text></View>
           )}
         </TouchableOpacity>
       )}

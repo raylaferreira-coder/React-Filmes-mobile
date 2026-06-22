@@ -48,7 +48,7 @@ export default function PostCard({
           </Text>
         </View>
 
-        <View>
+        <View style={styles.headerInfo}>
           <Text style={[styles.author, { color: themeColors.text }]}>
             {post.nome || "Anônimo"}
           </Text>
@@ -67,19 +67,17 @@ export default function PostCard({
 
       <View style={styles.actions}>
         <Pressable style={styles.actionButton} onPress={() => onLike(post.id)}>
-          {/* Corrigido: Adicionado o atributo name omitido no arquivo original */}
           <AntDesign
-            name="like1"
+            nome="like1"
             size={18}
             color={liked ? likeActiveColor : likeColor}
           />
-
-          <Text style={{ color: liked ? likeActiveColor : likeColor }}>
+          <Text style={{ color: liked ? likeActiveColor : likeColor, fontWeight: '600' }}>
             {liked ? post.likes + 1 : post.likes}
           </Text>
         </Pressable>
 
-        <Pressable onPress={() => onDelete(post.id)}>
+        <Pressable onPress={() => onDelete(post.id)} style={styles.deleteButton}>
           <Feather name="trash-2" size={18} color="#ef4444" />
         </Pressable>
       </View>
@@ -92,11 +90,17 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
+    marginHorizontal: 16, // Garante respiro nas laterais
+    borderWidth: 1,
+    borderColor: 'transparent',
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 12,
+  },
+  headerInfo: {
+    flex: 1, // Faz o texto ocupar o espaço restante sem empurrar o layout
   },
   avatar: {
     width: 48,
@@ -120,14 +124,22 @@ const styles = StyleSheet.create({
   content: {
     marginBottom: 16,
     lineHeight: 22,
+    flexWrap: 'wrap', // Garante que textos longos quebrem a linha sem cortar
   },
   actions: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(128,128,128,0.1)',
+    paddingTop: 12,
   },
   actionButton: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
   },
+  deleteButton: {
+    padding: 4,
+  }
 });

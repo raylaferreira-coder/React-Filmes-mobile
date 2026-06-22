@@ -1,18 +1,18 @@
-import React, { useState } from "react";
-import { ScrollView, Text, View, Pressable, TextInput } from "react-native";
+import React, { useState, useEffect } from "react";
+import { Text, View, Pressable, TextInput, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { NavigationProp } from "../../@types/Navigation";
 import { useTheme } from "../../contexts/ThemeContext";
 import { useAuth } from "../../contexts/AuthContext";
-
 import { getStyles } from "./styles";
 import MovieGrid from "../../Components/MovieGrid";
 import { MaterialIcons } from "@expo/vector-icons";
-
+import apiFilmes from "../../data/apiFilmes"; // Importante para a busca
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [filmeDestaque, setFilmeDestaque] = useState<any>(null);
   const navigation = useNavigation<NavigationProp>();
   const { currentTheme } = useTheme();
   const { user } = useAuth();
@@ -30,85 +30,76 @@ export default function Home() {
 
   const styles = getStyles(themeColors);
 
-  const getPrimeiroNome = (nomeCompleto: string) => {
-    if (!nomeCompleto) return "Utilizador";
-    return nomeCompleto.split(" ")[0];
-  };
+  // Busca um filme aleatório ou popular para o destaque
+  useEffect(() => {
+    async function carregarDestaque() {
+      try {
+        const response = await apiFilmes.get("/movie/now_playing");
+        if (response.data.results && response.data.results.length > 0) {
+          setFilmeDestaque(response.data.results[0]);
+        }
+      } catch (error) {
+        console.error("Erro ao carregar destaque:", error);
+      }
+    }
+    carregarDestaque();
+  }, []);
 
-  return (
-    <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
-      <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-        
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.saudacao}>Olá, {getPrimeiroNome(user?.name || "")}! 👋</Text>
-            <Text style={styles.subSaudacao}>Bem-vindo de volta ao seu espaço de cinema.</Text>
-          </View>
-        </View>
+  const renderHeader = () => (
+    <View>
+      <View style={styles.header}>
+        <Text style={styles.saudacao}>Olá, {user?.name?.split(" ")[0] || "Utilizador"}! 👋</Text>
+      </View>
 
-        <View style={{ marginBottom: 24 }}>
-          <TextInput
-            style={{
-              height: 46,
-              borderWidth: 1,
-              borderRadius: 8,
-              paddingHorizontal: 16,
-              fontSize: 15,
-              backgroundColor: themeColors.cardBg,
-              borderColor: themeColors.border,
-              color: themeColors.text
-            }}
-            placeholder="Pesquisar filmes no TMDB..."
-            placeholderTextColor={themeColors.placeholder}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-        </View>
+      <TextInput
+        style={{ height: 46, borderWidth: 1, borderRadius: 8, paddingHorizontal: 16, marginBottom: 24, backgroundColor: themeColors.cardBg, borderColor: themeColors.border, color: themeColors.text }}
+        placeholder="Pesquisar filmes no TMDB..."
+        placeholderTextColor={themeColors.placeholder}
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+      />
 
-        <View style={styles.bannerDestaque}>
+      {/* Banner Dinâmico */}
+      {filmeDestaque ? (
+        <Pressable 
+          style={styles.bannerDestaque} 
+          onPress={() => navigation.navigate("Feed", { id: filmeDestaque.id })}
+        >
           <View style={styles.tagDestaque}>
             <Text style={styles.tagTexto}>EM DESTAQUE</Text>
           </View>
-          <Text style={styles.tituloDestaque}>Duna: Parte Dois 🪐</Text>
-          <Text style={styles.textoDestaque}>
-            A comunidade está ativa a debater o mais recente sucesso de ficção científica. 
-            Visite o Feed para ler as críticas e deixar a sua nota!
+          <Text style={styles.tituloDestaque} numberOfLines={1}>{filmeDestaque.title}</Text>
+          <Text style={styles.textoDestaque} numberOfLines={3}>
+            {filmeDestaque.overview || "Sem descrição disponível."}
           </Text>
+        </Pressable>
+      ) : (
+        <View style={[styles.bannerDestaque, { alignItems: 'center', justifyContent: 'center' }]}>
+          <ActivityIndicator color={themeColors.primary} />
         </View>
+      )}
 
-        <Text style={styles.seccaoTitulo}>Navegação Rápida</Text>
-        
-        <View style={styles.grelhaAcoes}>
-          
-          <Pressable style={styles.cartaoAcao} onPress={() => navigation.navigate("Feed")}>
-            <MaterialIcons name="forum" size={32} style={styles.iconeAcao} />
-            <Text style={styles.textoAcao}>Feed da Comunidade</Text>
-          </Pressable>
+      <Text style={styles.seccaoTitulo}>Navegação Rápida</Text>
+      <View style={styles.grelhaAcoes}>
+        <Pressable style={styles.cartaoAcao} onPress={() => navigation.navigate("Feed")}><MaterialIcons name="forum" size={32} style={styles.iconeAcao} /><Text style={styles.textoAcao}>Feed</Text></Pressable>
+        <Pressable style={styles.cartaoAcao} onPress={() => navigation.navigate("About")}><MaterialIcons name="info" size={32} style={styles.iconeAcao} /><Text style={styles.textoAcao}>Sobre</Text></Pressable>
+        <Pressable style={styles.cartaoAcao} onPress={() => navigation.navigate("ContactUs")}><MaterialIcons name="mail" size={32} style={styles.iconeAcao} /><Text style={styles.textoAcao}>Contato</Text></Pressable>
+        <Pressable style={styles.cartaoAcao} onPress={() => navigation.navigate("Feed")}><MaterialIcons name="movie" size={32} style={styles.iconeAcao} /><Text style={styles.textoAcao}>Votados</Text></Pressable>
+      </View>
 
-          <Pressable style={styles.cartaoAcao} onPress={() => navigation.navigate("About")}>
-            <MaterialIcons name="info" size={32} style={styles.iconeAcao} />
-            <Text style={styles.textoAcao}>Sobre o App</Text>
-          </Pressable>
+      <Text style={[styles.seccaoTitulo, { marginTop: 32 }]}>
+        {searchQuery ? "Resultados da Busca" : "Filmes Populares"}
+      </Text>
+    </View>
+  );
 
-          <Pressable style={styles.cartaoAcao} onPress={() => navigation.navigate("ContactUs")}>
-            <MaterialIcons name="mail" size={32} style={styles.iconeAcao} />
-            <Text style={styles.textoAcao}>Fale Conosco</Text>
-          </Pressable>
-
-          <Pressable style={styles.cartaoAcao} onPress={() => navigation.navigate("Feed")}>
-            <MaterialIcons name="movie" size={32} style={styles.iconeAcao} />
-            <Text style={styles.textoAcao}>Filmes Votados</Text>
-          </Pressable>
-
-        </View>
-
-        <Text style={[styles.seccaoTitulo, { marginTop: 32, marginBottom: 4 }]}>
-          {searchQuery ? "Resultados da Busca" : "Filmes Populares"}
-        </Text>
-        
-        <MovieGrid query={searchQuery} />
-
-      </ScrollView>
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: themeColors.background }} edges={['bottom', 'left', 'right']}>
+      <MovieGrid 
+        query={searchQuery} 
+        ListHeaderComponent={renderHeader()} 
+        contentContainerStyle={{ padding: 24 }}
+      />
     </SafeAreaView>
   );
 }
