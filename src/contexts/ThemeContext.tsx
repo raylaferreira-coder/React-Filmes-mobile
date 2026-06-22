@@ -27,7 +27,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     loadStoredTheme();
   }, []);
 
-  // Modifica o estado do tema global e salva a preferência localmente
+  // tema global e salva a preferência localmente
   const setThemeMode = async (theme: ThemeMode) => {
     try {
       setCurrentTheme(theme);

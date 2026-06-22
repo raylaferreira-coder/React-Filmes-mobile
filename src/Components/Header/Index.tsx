@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 14,
     paddingBottom: 12,
-    paddingTop: Platform.OS === "ios" ? 50 : 36,
+    paddingTop: Platform.OS === "ios" ? 50 : 36, //kevin testando no iphone
     borderBottomWidth: 1,
   },
   leftSection: { flexDirection: "row", alignItems: "center", gap: 8 },

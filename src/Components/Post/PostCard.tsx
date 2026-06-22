@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
-    marginHorizontal: 16, // Garante respiro nas laterais
+    marginHorizontal: 16, // respiro nas laterais
     borderWidth: 1,
     borderColor: 'transparent',
   },
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   headerInfo: {
-    flex: 1, // Faz o texto ocupar o espaço restante sem empurrar o layout
+    flex: 1, // sem empurrar o layout
   },
   avatar: {
     width: 48,
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
   content: {
     marginBottom: 16,
     lineHeight: 22,
-    flexWrap: 'wrap', // Garante que textos longos quebrem a linha sem cortar
+    flexWrap: 'wrap', 
   },
   actions: {
     flexDirection: "row",

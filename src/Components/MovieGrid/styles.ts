@@ -1,8 +1,8 @@
 import { StyleSheet, Dimensions } from "react-native";
 
-// Constantes de Grid expostas para o componente usar se necessário
+// Grid expostas se necessário
 const { width } = Dimensions.get("window");
-export const NUM_COLUNAS = 2;
+export const NUM_COLUNAS = 1;
 export const ESPACAMENTO = 16;
 export const LARGURA_CARD = (width - ESPACAMENTO * (NUM_COLUNAS + 1)) / NUM_COLUNAS;
 

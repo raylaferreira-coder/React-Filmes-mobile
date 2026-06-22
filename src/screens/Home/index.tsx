@@ -8,7 +8,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { getStyles } from "./styles";
 import MovieGrid from "../../Components/MovieGrid";
 import { MaterialIcons } from "@expo/vector-icons";
-import apiFilmes from "../../data/apiFilmes"; // Importante para a busca
+import apiFilmes from "../../data/apiFilmes"; // Import para a busca
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -30,7 +30,6 @@ export default function Home() {
 
   const styles = getStyles(themeColors);
 
-  // Busca um filme aleatório ou popular para o destaque
   useEffect(() => {
     async function carregarDestaque() {
       try {
@@ -81,10 +80,10 @@ export default function Home() {
 
       <Text style={styles.seccaoTitulo}>Navegação Rápida</Text>
       <View style={styles.grelhaAcoes}>
-        <Pressable style={styles.cartaoAcao} onPress={() => navigation.navigate("Feed")}><MaterialIcons name="forum" size={32} style={styles.iconeAcao} /><Text style={styles.textoAcao}>Feed</Text></Pressable>
-        <Pressable style={styles.cartaoAcao} onPress={() => navigation.navigate("About")}><MaterialIcons name="info" size={32} style={styles.iconeAcao} /><Text style={styles.textoAcao}>Sobre</Text></Pressable>
         <Pressable style={styles.cartaoAcao} onPress={() => navigation.navigate("ContactUs")}><MaterialIcons name="mail" size={32} style={styles.iconeAcao} /><Text style={styles.textoAcao}>Contato</Text></Pressable>
-        <Pressable style={styles.cartaoAcao} onPress={() => navigation.navigate("Feed")}><MaterialIcons name="movie" size={32} style={styles.iconeAcao} /><Text style={styles.textoAcao}>Votados</Text></Pressable>
+        <Pressable style={styles.cartaoAcao} onPress={() => navigation.navigate("About")}><MaterialIcons name="info" size={32} style={styles.iconeAcao} /><Text style={styles.textoAcao}>Sobre</Text></Pressable>
+        {/* <Pressable style={styles.cartaoAcao} onPress={() => navigation.navigate("Feed")}><MaterialIcons name="movie" size={32} style={styles.iconeAcao} /><Text style={styles.textoAcao}>Ultimo Visto</Text></Pressable> */}
+        {/* <Pressable style={styles.cartaoAcao} onPress={() => navigation.navigate("Feed")}><MaterialIcons name="forum" size={32} style={styles.iconeAcao} /><Text style={styles.textoAcao}>Feed</Text></Pressable> */}
       </View>
 
       <Text style={[styles.seccaoTitulo, { marginTop: 32 }]}>

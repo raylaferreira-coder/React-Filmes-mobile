@@ -84,7 +84,7 @@ export const getStyles = (colors: HomeThemeColors) => StyleSheet.create({
     justifyContent: 'space-between',
   },
   cartaoAcao: {
-    width: '47%', // Garante duas colunas alinhadas com o gap
+    width: '45%', // Garante duas colunas alinhadas com o gap
     borderRadius: 12,
     padding: 20,
     borderWidth: 1,
