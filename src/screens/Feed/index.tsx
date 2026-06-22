@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, FlatList, ActivityIndicator, Alert } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context"; // Recomendado para gerenciar safe area
+import {  View,
+  Text,
+  Image,
+  FlatList,
+  ActivityIndicator,
+  Alert,
+  TextInput,
+  TouchableOpacity, } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../../contexts/ThemeContext"; 
 import { useAuth } from "../../contexts/AuthContext";
 import api from "../../data/api";
@@ -13,6 +20,8 @@ export default function Feed({ route }: any) {
   const [comment, setComment] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [dadosFilme, setDadosFilme] = useState<any>(null);
+  const [editandoId, setEditandoId] = useState<number | null>(null);
+  const [textoEditado, setTextoEditado] = useState("");
 
   const { currentTheme } = useTheme(); 
   const isLight = currentTheme === "light";
@@ -46,6 +55,76 @@ export default function Feed({ route }: any) {
     carregar();
   }, [filmeId]);
 
+  async function excluirComentario(id: number) {
+  Alert.alert(
+    "Excluir comentário",
+    "Tem certeza que deseja excluir este comentário?",
+    [
+      {
+        text: "Cancelar",
+        style: "cancel",
+      },
+      {
+        text: "Excluir",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await api.delete(`/comentario/${id}`);
+
+            setComment((prev) =>
+              prev.filter((comentario) => comentario.id !== id)
+            );
+          } catch (error) {
+            Alert.alert("Erro", "Não foi possível excluir.");
+          }
+        },
+      },
+    ]
+  );
+} 
+
+async function atualizarComentario(id: number) {
+  try {
+    const comentarioOriginal = comment.find(
+      (item) => item.id === id
+    );
+
+    if (!comentarioOriginal) {
+      Alert.alert("Erro", "Comentário não encontrado.");
+      return;
+    }
+
+    // Exclui o comentário antigo
+    await api.delete(`/comentario/${id}`);
+
+    // Cria um novo comentário
+    const response = await api.post("/comentario", {
+      nome: comentarioOriginal.nome,
+      postagem: textoEditado,
+      dataPostagem: new Date().toISOString(),
+      filmeId,
+    });
+
+    // Remove o antigo da lista
+    setComment((prev) =>
+      prev.filter((item) => item.id !== id)
+    );
+
+    // Adiciona o novo
+    setComment((prev) => [response.data, ...prev]);
+
+    setEditandoId(null);
+    setTextoEditado("");
+
+    Alert.alert("Sucesso", "Comentário atualizado.");
+  } catch (error) {
+    Alert.alert("Erro", "Não foi possível atualizar.");
+    console.error(error);
+  }
+}
+
+
+
   const renderHeader = () => {
     if (!dadosFilme) return null;
     return (
@@ -70,7 +149,7 @@ export default function Feed({ route }: any) {
   };
 
   return (
-    // SafeAreaView garante que o conteúdo respeite as margens do sistema
+  
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       {loading ? (
         <ActivityIndicator size="large" color={colors.primary} />
@@ -79,13 +158,93 @@ export default function Feed({ route }: any) {
           data={comment}
           keyExtractor={(item) => item.id.toString()}
           ListHeaderComponent={renderHeader}
-          contentContainerStyle={styles.listContainer} // Aplica padding correto definido em styles
+          contentContainerStyle={styles.listContainer} 
           renderItem={({ item }) => (
-            <View style={styles.postCard}>
-              <Text style={styles.authorName}>{item.nome}</Text>
-              <Text style={styles.postContent}>{item.postagem}</Text>
-            </View>
-          )}
+  <View style={styles.postCard}>
+    <Text style={styles.authorName}>{item.nome}</Text>
+
+    {editandoId === item.id ? (
+      <>
+        <TextInput
+          style={styles.campoTextoEdicao}
+          value={textoEditado}
+          onChangeText={setTextoEditado}
+          multiline
+        />
+
+        <View style={styles.editActionButtons}>
+          <TouchableOpacity
+            style={styles.btnPublicar}
+            onPress={() => atualizarComentario(item.id)}
+          >
+            <Text style={styles.btnPublicarText}>
+              Salvar
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.btnPublicar,
+              { backgroundColor: "#777" },
+            ]}
+            onPress={() => {
+              setEditandoId(null);
+              setTextoEditado("");
+            }}
+          >
+            <Text style={styles.btnPublicarText}>
+              Cancelar
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </>
+    ) : (
+      <>
+        <Text style={styles.postContent}>
+          {item.postagem}
+        </Text>
+
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "flex-end",
+            gap: 15,
+            marginTop: 10,
+          }}
+        >
+          <TouchableOpacity
+            onPress={() => {
+              setEditandoId(item.id);
+              setTextoEditado(item.postagem);
+            }}
+          >
+            <Text
+              style={{
+                color: colors.primary,
+                fontWeight: "bold",
+              }}
+            >
+              Editar
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => excluirComentario(item.id)}
+          >
+            <Text
+              style={{
+                color: "red",
+                fontWeight: "bold",
+              }}
+            >
+              Excluir
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </>
+    )}
+  </View>
+)}
         />
       )}
     </SafeAreaView>
