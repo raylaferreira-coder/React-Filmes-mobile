@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import AntDesign from "@expo/vector-icons/AntDesign"; 
 import FontAwesome from "@expo/vector-icons/FontAwesome"; 
-import { useTheme } from "../../contexts/ThemeContext"; // Consumindo seu hook de tema
+import { useTheme } from "../../contexts/ThemeContext"; 
 import api from "../../data/api";
 
 interface PostItem {
@@ -23,7 +23,6 @@ interface PostItem {
   like: number;
 }
 
-// Dados mocados ou vindos de propriedades para ilustrar a seção do filme do CSS
 const MOVIE_DATA = {
   titulo: "Duna: Parte Dois",
   nota: "★ 8.8 / 10",
@@ -36,14 +35,11 @@ export default function Feed() {
   const [likedId, setLikedId] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(true);
   
-  // Estado para a caixa de texto de criação de postagem
   const [novoComentario, setNovoComentario] = useState("");
 
-  // 1. CONSUMO DO SEU HOOK DE TEMA
   const { currentTheme } = useTheme(); 
   const isLight = currentTheme === "light";
 
-  // 2. PALETA DE CORES BASEADA NO TEMA ATUAL
   const colors = {
     background: isLight ? "#f5f5f5" : "#121212",
     cardBg: isLight ? "#ffffff" : "#1e1e1e",
@@ -51,8 +47,8 @@ export default function Feed() {
     text: isLight ? "#333333" : "#ffffff",
     subText: isLight ? "#777777" : "#aaaaaa",
     inputBg: isLight ? "#ffffff" : "#2a2a2a",
-    primary: "#1d9e75", // Cor verde do seu CSS
-    likeActive: "#e91e63", // Cor para o botão curtido
+    primary: "#1d9e75", 
+    likeActive: "#e91e63",
   };
 
   useEffect(() => {
@@ -73,7 +69,7 @@ export default function Feed() {
     if (!novoComentario.trim()) return;
 
     const payload = {
-      nome: "Usuário Logado", // Exemplo ilustrativo
+      nome: "Usuário Logado", 
       postagem: novoComentario,
       dataPostagem: new Date().toISOString(),
       like: 0
@@ -104,7 +100,6 @@ export default function Feed() {
     });
   }
 
-  // Função auxiliar para gerar iniciais direto no componente (Fallback)
   function getInitials(name: string) {
     if (!name) return "";
     const parts = name.split(" ");
@@ -114,10 +109,8 @@ export default function Feed() {
     return parts[0][0].toUpperCase();
   }
 
-  // Componente de cabeçalho da lista: Renderiza os dados do Filme + Caixa de Criar Post
   const renderHeader = () => (
     <View>
-      {/* Seção do Filme (colunaFilme do CSS) */}
       <View style={[styles.movieSection, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
         <Image source={{ uri: MOVIE_DATA.posterUrl }} style={styles.poster} />
         <Text style={[styles.tituloFilme, { color: colors.text }]}>{MOVIE_DATA.titulo}</Text>
@@ -125,7 +118,6 @@ export default function Feed() {
         <Text style={[styles.sinopseFilme, { color: colors.text }]}>{MOVIE_DATA.sinopse}</Text>
       </View>
 
-      {/* Caixa criar postagem (caixaCriarPost do CSS) */}
       <View style={[styles.caixaCriarPost, { backgroundColor: colors.cardBg, borderColor: colors.border }]}>
         <Text style={[styles.createPostTitle, { color: colors.text }]}>Compartilhe sua opinião</Text>
         <TextInput
@@ -209,7 +201,7 @@ export default function Feed() {
         data={comment}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
-        ListHeaderComponent={renderHeader} // Renderiza o filme e a caixa de input no topo com rolagem fluida
+        ListHeaderComponent={renderHeader} 
         contentContainerStyle={styles.listContainer}
       />
     </View>
@@ -226,7 +218,6 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     paddingHorizontal: 15,
   },
-  // Seção do Filme
   movieSection: {
     padding: 15,
     borderRadius: 12,
@@ -256,7 +247,7 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     textAlign: "justify",
   },
-  // Caixa Criar Post
+  
   caixaCriarPost: {
     padding: 20,
     borderRadius: 12,
@@ -273,7 +264,7 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 8,
     borderWidth: 1,
-    textAlignVertical: "top", // Garante que o texto inicie no topo no Android
+    textAlignVertical: "top",
     fontSize: 15,
   },
   botoesForm: {
@@ -305,7 +296,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginVertical: 10,
   },
-  // Estrutura do Card de Comentário
   postCard: {
     borderWidth: 1,
     borderRadius: 10,
