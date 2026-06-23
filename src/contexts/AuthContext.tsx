@@ -9,7 +9,7 @@ interface UserData {
 interface AuthContextType {
   user: UserData | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<boolean>; // Mudado para retornar boolean
+  login: (email: string, senha: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -19,12 +19,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-
+  
   useEffect(() => {
     const checkActiveSession = async () => {
       try {
         const storedUser = await AsyncStorage.getItem('@cinema_app:user');
-        const token = await AsyncStorage.getItem('@cinema_app:token'); // Corrigido a chave aqui
+        const token = await AsyncStorage.getItem('token');
 
         if (storedUser && token) {
           setUser(JSON.parse(storedUser));
@@ -40,56 +40,72 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
-    const formattedEmail = email.trim().toLowerCase();
-
- 
-    if (formattedEmail === 'teste@teste.com' && password === '1234') {
-      const loggedUser: UserData = { email: formattedEmail };
-      try {
-        setUser(loggedUser);
-        await AsyncStorage.setItem('@cinema_app:user', JSON.stringify(loggedUser));
-        await AsyncStorage.setItem('@cinema_app:token', 'token-mockado-de-teste');
-        return true; 
-      } catch (storageError) {
-        console.error('Erro ao guardar sessão do usuário mock:', storageError);
-        return false;
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-   
+    const formattedEmail = email.trim().toLocaleLowerCase()
+    
     try {
-     
+      
       const response = await api.post('/auth/login', {
-        email: formattedEmail,
-        senha: password
+        email: email.trim().toLowerCase(),
+        senha: senha
       });
 
-      const { token, email: userEmail } = response.data;
+     
+      const { token, id, email: userEmail } = response.data;
 
+    try {
+      
+        const response = await api.post('/usuarios/login', {
+          email: formattedEmail,
+          senha: password
+      });
+      
+      const { token,  email: userEmail } = response.data;
+     
       const loggedUser: UserData = {
         email: userEmail || formattedEmail,
       };
 
       setUser(loggedUser);
       await AsyncStorage.setItem('@cinema_app:user', JSON.stringify(loggedUser));
-      await AsyncStorage.setItem('@cinema_app:token', token); 
+      await AsyncStorage.setItem('@cinema_app:token', token)
 
+      setIsLoading(false);
       return true;
+    }catch (error) {
+      console.warn("Falha de autenticação na API", error)
+    }
+
+    if (formattedEmail === 'teste@teste.com' && password === '123456') {
+      const loggedUser: UserData = {
+        email: formattedEmail,
+      }  
+      try {
+        setUser(loggedUser);
+        await AsyncStorage.setItem('@cinema_app:user', JSON.stringify(loggedUser));
+        setIsLoading(false);
+        return true; // login efetuado
+      } catch (storageError) {
+        console.error('Erro ao guardar sessão do usuario teste:', 'Erro ao guardar sessão do usuário mock:', storageError);
+      }
+    };
+
+    
+      setUser(loggedUser);
+
     } catch (error) {
-      console.warn("Falha de autenticação na API", error);
-      throw error; 
+   
+      throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
+ 
   const logout = async () => {
     try {
       setUser(null);
       await AsyncStorage.removeItem('@cinema_app:user');
-      await AsyncStorage.removeItem('@cinema_app:token'); 
+      await AsyncStorage.removeItem('token'); 
     } catch (error) {
       console.error('Erro ao efetuar logout:', error);
     }
@@ -105,7 +121,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth deve ser usado dentro de um AuthProvider');
+    throw new Error
   }
   return context;
 };

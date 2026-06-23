@@ -113,7 +113,7 @@ export default function Login() {
         </Pressable>
 
         <Text style={[styles.dicaTexto, { color: themeColors.placeholder }]}>
-          Dica para teste: teste@teste.com | 1234
+          Dica para teste: teste@teste.com | 123456
         </Text>
       </View>
     </SafeAreaView>
