@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Text, View, Pressable, TextInput, ActivityIndicator } from "react-native";
+import { Text, View, Pressable, TextInput, ActivityIndicator,TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { NavigationProp } from "../../@types/Navigation";
@@ -8,11 +8,12 @@ import { useAuth } from "../../contexts/AuthContext";
 import { getStyles } from "./styles";
 import MovieGrid from "../../Components/MovieGrid";
 import { MaterialIcons } from "@expo/vector-icons";
-import apiFilmes from "../../data/apiFilmes"; // Import para a busca
+import apiFilmes from "../../data/apiFilmes"; 
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filmeDestaque, setFilmeDestaque] = useState<any>(null);
+  const [textoBusca, setTextoBusca] = useState("");
   const navigation = useNavigation<NavigationProp>();
   const { currentTheme } = useTheme();
   const { user } = useAuth();
@@ -50,13 +51,46 @@ export default function Home() {
         <Text style={styles.saudacao}>Olá, {user?.name?.split(" ")[0] || "Utilizador"}! 👋</Text>
       </View>
 
-      <TextInput
-        style={{ height: 46, borderWidth: 1, borderRadius: 8, paddingHorizontal: 16, marginBottom: 24, backgroundColor: themeColors.cardBg, borderColor: themeColors.border, color: themeColors.text }}
-        placeholder="Pesquisar filmes no TMDB..."
-        placeholderTextColor={themeColors.placeholder}
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-      />
+      <View
+  style={{
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderRadius: 8,
+    marginBottom: 24,
+    backgroundColor: themeColors.cardBg,
+    borderColor: themeColors.border,
+    paddingHorizontal: 10,
+  }}>
+
+    <TextInput
+  style={{
+    flex: 1,
+    height: 46,
+    color: themeColors.text,
+  }}
+  placeholder="Pesquisar filmes..."
+  placeholderTextColor={themeColors.placeholder}
+  value={textoBusca}
+  onChangeText={(texto) => {
+    setTextoBusca(texto);
+
+    if (texto.trim() === "") {
+      setSearchQuery("");
+    }
+  }}
+  />
+
+  <TouchableOpacity
+    onPress={() => setSearchQuery(textoBusca)}
+  >
+    <MaterialIcons
+      name="search"
+      size={22}
+      color={themeColors.primary}
+    />
+  </TouchableOpacity>
+</View>
 
       {/* Banner Dinâmico */}
       {filmeDestaque ? (

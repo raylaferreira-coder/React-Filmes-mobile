@@ -22,17 +22,29 @@ export default function Search({ onSearch }: SearchProps) {
 
   const handleChange = (value: string) => {
     setText(value);
-    onSearch(value); // Dispara o filtro em tempo real no componente pai
+  };
+
+  const handleSearch = () => {
+  onSearch(text);
   };
 
   const handleClear = () => {
     setText("");
-    onSearch(""); // Reseta a lista ao limpar o campo
+    onSearch("");
   };
 
   return (
     <View style={[styles.container, { backgroundColor: themeColors.bg, borderColor: themeColors.border }]}>
-      <Feather name="search" size={18} color={themeColors.icon} style={styles.searchIcon} />
+      <TouchableOpacity
+  onPress={handleSearch}
+  style={styles.searchIcon}
+>
+  <Feather
+    name="search"
+    size={18}
+    color={themeColors.icon}
+  />
+</TouchableOpacity>
       
       <TextInput
         style={[styles.input, { color: themeColors.text }]}
@@ -40,6 +52,8 @@ export default function Search({ onSearch }: SearchProps) {
         placeholderTextColor={themeColors.placeholder}
         value={text}
         onChangeText={handleChange}
+        onSubmitEditing={handleSearch}
+        returnKeyType="search"
         autoCapitalize="none"
       />
 
