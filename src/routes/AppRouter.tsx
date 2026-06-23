@@ -10,7 +10,7 @@ import Home from '../screens/Home';
 import Feed from '../screens/Feed';
 import About from '../screens/About';
 import ContactUs from '../screens/ContactUs';
-import Header from '../components/Header/Index';
+import Header from '../Components/Header/Index';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
