@@ -110,41 +110,52 @@ O aplicativo consome duas fontes de dados simultâneas:
 1. **Clonar o Repositório:**
 ```bash
 git clone https://github.com/raylaferreira-coder/React-Filmes-mobile
-
 ```
 
 
 2. **Entrar na pasta:**
 ```bash
 cd React-Filmes-mobile
-
 ```
 
 
 3. **Instalar Dependências:**
 ```bash
 npm install # ou yarn install
-
 ```
 
 
 4. **Configurar Variáveis de Ambiente:**
 Crie um arquivo `.env` na raiz com:
 ```env
-EXPO_PUBLIC_TMDB_API_KEY=SUA_CHAVE_TMDB
-EXPO_PUBLIC_API_URL=[https://sua-api.onrender.com](https://sua-api.onrender.com)
-
+EXPO_PUBLIC_TMDB_API_KEY= SUA_CHAVE_TMDB
+EXPO_PUBLIC_API_URL= https://api-mobile-egw1.onrender.com
 ```
 
 
 5. **Executar:**
 ```bash
 npx expo start # ou npm start
-
 ```
 
+6. **Login:**
 
+```
+email: teste@teste.com
+senha: 123456
+```
+**Também, é possivel criar novos usuarios e senhas usando o método *Post* dentro do Postman ou similares**
 
+```
+endpoint: https://api-mobile-egw1.onrender.com/auth/register
+
+json: 
+
+{
+    "email":"ESCOLHA_UM_NOME@DOMINIO.com",
+    "senha":"ESCOLHA_UMA_SENHA"   
+}
+```
 ---
 
 # 👥 Integrantes do Projeto

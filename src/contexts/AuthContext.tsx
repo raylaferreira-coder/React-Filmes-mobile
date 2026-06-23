@@ -1,15 +1,17 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import api from '../data/api';
 
 interface UserData {
-  name: string;
   email: string;
+  name: string; 
+  
 }
 
 interface AuthContextType {
   user: UserData | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (email: string, senha: string) => Promise<boolean>;
   logout: () => Promise<void>;
 }
 
@@ -19,12 +21,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<UserData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Verifica se já existe uma sessão ativa guardada no dispositivo
   useEffect(() => {
     const checkActiveSession = async () => {
       try {
-        const storedUser = await AsyncStorage.getItem('@cinema_app:user');
-        if (storedUser) {
+
+        const storedUser = await AsyncStorage.getItem('@filmes_api:user');
+        const token = await AsyncStorage.getItem('@filmes_api:token');
+
+        if (storedUser && token) {
           setUser(JSON.parse(storedUser));
         }
       } catch (error) {
@@ -36,39 +40,51 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     checkActiveSession();
   }, []);
 
-  // Simulação de chamada de API para autenticação
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
+    const formattedEmail = email.trim().toLowerCase();
     
-    // Simula um atraso de rede de 1.5 segundos
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+   
+    const rawName = formattedEmail.split('@')[0];
+    const extractedName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
 
-    // Validação estrita simulando a resposta de um servidor externo
-    if (email.trim().toLowerCase() === 'teste@teste.com' && password === '123456') {
-      const loggedUser: UserData = {
-        name: 'Teste',
-        email: email.trim().toLowerCase(),
-      };
-
-      try {
-        setUser(loggedUser);
-        await AsyncStorage.setItem('@cinema_app:user', JSON.stringify(loggedUser));
-        setIsLoading(false);
-        return true; // login efetuado
-      } catch (error) {
-        console.error('Erro ao guardar sessão:', error);
+    try {
+      const response = await api.post('/auth/login', {
+        email: formattedEmail,
+        senha: password
+      });
+      
+      const loggedUser: UserData = { email: formattedEmail, name: extractedName };
+      setUser(loggedUser);
+      
+   
+      await AsyncStorage.setItem('@filmes_api:user', JSON.stringify(loggedUser));
+      
+      if (response.data?.token) {
+        await AsyncStorage.setItem('@filmes_api:token', response.data.token);
       }
+      return true;
+    } catch (error) {
+     
+      if (formattedEmail === 'teste@teste.com' && password === '123456') {
+        const loggedUser: UserData = { email: formattedEmail, name: 'Teste' };
+        setUser(loggedUser);
+        await AsyncStorage.setItem('@filmes_api:user', JSON.stringify(loggedUser));
+        await AsyncStorage.setItem('@filmes_api:token', 'token-mockado-de-teste');
+        return true;
+      }
+      return false;
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
-    return false; //inválidas
   };
 
-  // Encerra a sessão e limpa o armazenamento local
   const logout = async () => {
     try {
       setUser(null);
-      await AsyncStorage.removeItem('@cinema_app:user');
+      
+      await AsyncStorage.removeItem('@filmes_api:user');
+      await AsyncStorage.removeItem('@filmes_api:token');
     } catch (error) {
       console.error('Erro ao efetuar logout:', error);
     }
@@ -83,8 +99,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth deve ser usado dentro de um AuthProvider');
-  }
+  if (!context) throw new Error('useAuth deve ser usado dentro de um AuthProvider');
   return context;
 };

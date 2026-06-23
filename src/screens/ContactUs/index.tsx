@@ -1,16 +1,8 @@
 import React, { useState } from "react";
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  Pressable, 
-  Alert, 
-  StyleSheet, 
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform
-} from "react-native";
+import { ScrollView, Text, TextInput, View, Pressable, Alert } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../../contexts/ThemeContext";
+import { getStyles } from "./styles"; // ✨ Importando nossa fábrica de estilos isolados
 
 export default function ContactUs() {
   const [nome, setNome] = useState("");
@@ -19,7 +11,6 @@ export default function ContactUs() {
 
   const { currentTheme } = useTheme();
 
-  // Definição dinâmica de cores com base no tema ativo
   const isDark = currentTheme === 'dark';
   const themeColors = {
     background: isDark ? '#15151a' : '#f3f4f6',
@@ -31,152 +22,72 @@ export default function ContactUs() {
     placeholder: isDark ? '#6b7280' : '#9ca3af',
   };
 
-  function enviarMensagem() {
+  // ✨ Gerando os estilos enxutos passando o tema em tempo de execução
+  const styles = getStyles(themeColors);
+
+  function handleSendMessage() {
     if (!nome.trim() || !email.trim() || !mensagem.trim()) {
-      Alert.alert("Atenção", "Por favor, preencha todos os campos.");
+      Alert.alert("Erro", "Por favor, preencha todos os campos antes de enviar.");
       return;
     }
 
-    Alert.alert(
-      "Mensagem enviada!",
-      `Obrigado pelo contacto, ${nome.trim()}. A nossa equipa responderá em breve.`
-    );
-
-    // Limpa os campos após o envio com sucesso
+    // Simulação de envio com sucesso
+    Alert.alert("Mensagem Enviada!", `Obrigado pelo contacto, ${nome.trim()}! Nossa equipa responderá em breve.`);
     setNome("");
     setEmail("");
     setMensagem("");
   }
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ flex: 1 }}
-    >
-      <ScrollView 
-        style={[styles.screen, { backgroundColor: themeColors.background }]}
-        contentContainerStyle={styles.container}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={[styles.card, { backgroundColor: themeColors.cardBg, borderColor: themeColors.border }]}>
-          <Text style={[styles.titulo, { color: themeColors.text }]}>Fale Conosco</Text>
-          <Text style={[styles.subtitulo, { color: themeColors.subText }]}>
-            Tem alguma dúvida ou sugestão sobre o catálogo? Envie-nos uma mensagem!
-          </Text>
+    <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
+      <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+        <View style={styles.card}>
+          
+          <Text style={styles.titulo}>Fale Conosco 📬</Text>
+          <Text style={styles.subtitulo}>Tem alguma dúvida, crítica ou sugestão? Envie-nos uma mensagem!</Text>
 
-          {/* CAMPO: NOME */}
-          <Text style={[styles.label, { color: themeColors.text }]}>Nome</Text>
+          <Text style={styles.label}>Nome</Text>
           <TextInput
-            style={[styles.input, { backgroundColor: themeColors.inputBg, borderColor: themeColors.border, color: themeColors.text }]}
-            placeholder="Digite o seu nome"
+            style={styles.input}
+            placeholder="Seu nome completo"
             placeholderTextColor={themeColors.placeholder}
             value={nome}
             onChangeText={setNome}
           />
 
-          {/* CAMPO: E-MAIL */}
-          <Text style={[styles.label, { color: themeColors.text }]}>E-mail</Text>
+          <Text style={styles.label}>E-mail</Text>
           <TextInput
-            style={[styles.input, { backgroundColor: themeColors.inputBg, borderColor: themeColors.border, color: themeColors.text }]}
-            placeholder="Digite o seu e-mail"
+            style={styles.input}
+            placeholder="seuemail@exemplo.com"
             placeholderTextColor={themeColors.placeholder}
-            keyboardType="email-address" 
+            keyboardType="email-address"
             autoCapitalize="none"
             value={email}
             onChangeText={setEmail}
           />
 
-          {/* CAMPO: MENSAGEM */}
-          <Text style={[styles.label, { color: themeColors.text }]}>Mensagem</Text>
+          <Text style={styles.label}>Mensagem</Text>
           <TextInput
-            style={[
-              styles.input, 
-              styles.mensagem, 
-              { backgroundColor: themeColors.inputBg, borderColor: themeColors.border, color: themeColors.text }
-            ]}
-            placeholder="Escreva aqui a sua mensagem..."
+            style={styles.inputMultiline}
+            placeholder="Escreva sua mensagem aqui..."
             placeholderTextColor={themeColors.placeholder}
+            multiline
+            numberOfLines={5}
             value={mensagem}
             onChangeText={setMensagem}
-            multiline={true}
-            numberOfLines={4}
-            textAlignVertical="top" // Garante alinhamento correto no Android
           />
 
-          {/* BOTÃO DE SUBMISSÃO */}
-          <Pressable style={styles.botao} onPress={enviarMensagem}>
+          <Pressable style={styles.botaoEnviar} onPress={handleSendMessage}>
             <Text style={styles.botaoTexto}>Enviar Mensagem</Text>
           </Pressable>
+
+          <View style={styles.infoSuporte}>
+            <Text style={styles.infoTexto}>Suporte directo: suporte@cinemaapp.com</Text>
+            <Text style={styles.infoTexto}>Resposta em até 24 horas úteis.</Text>
+          </View>
+
         </View>
       </ScrollView>
-    </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-  },
-  container: {
-    padding: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 30,
-  },
-  card: {
-    width: "100%",
-    maxWidth: 400,
-    padding: 24,
-    borderRadius: 12,
-    borderWidth: 1,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  titulo: {
-    fontSize: 24,
-    fontWeight: "700",
-    marginBottom: 6,
-    textAlign: "center",
-  },
-  subtitulo: {
-    fontSize: 14,
-    textAlign: "center",
-    marginBottom: 24,
-    lineHeight: 20,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: "600",
-    marginBottom: 6,
-  },
-  input: {
-    borderWidth: 1, 
-    borderRadius: 8,
-    height: 46,
-    marginBottom: 16,        
-    paddingHorizontal: 14,
-    fontSize: 15,
-  },
-  mensagem: {
-    height: 100,
-    paddingTop: 12,
-    paddingBottom: 12,
-  },
-  botao: {
-    backgroundColor: '#e11d48',
-    borderRadius: 8,
-    height: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  botaoTexto: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-});
