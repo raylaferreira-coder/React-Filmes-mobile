@@ -104,7 +104,22 @@ O aplicativo consome duas fontes de dados simultâneas:
 | DELETE | `/comentarios/{id}` | Remove comentário |
 
 ---
+## 📱 Como Executar o Projeto no Mobile
+O aplicativo foi desenvolvido utilizando o Expo. Você pode acessar a build diretamente pelo link abaixo:
 
+👉 Acessar: https://expo.dev/accounts/rayla12/projects/filme/builds/cdb0cfc5-7aa0-4e39-83b5-3707e3f91847
+
+⚠️ Informação Importante sobre a API (Render)
+Nossa API e o banco de dados estão hospedados no plano gratuito do Render. Por conta disso, o servidor entra em estado de hibernação (cold start) se ficar mais de 15 minutos sem receber requisições.
+
+Se o aplicativo não carregar as informações ou os filmes de imediato, siga estes passos:
+Aguarde a inicialização: Quando a primeira requisição é feita, o servidor leva cerca de 1 minuto para "acordar".
+
+Reinicie o app: Se os dados não renderizarem na tela após clicar em um filme, feche o aplicativo completamente, espere 1 minuto e abra-o novamente.
+
+**Dica para testes: Para garantir que a API já está ativa antes de abrir o mobile, você pode realizar uma requisição prévia (como criar um usuário ou fazer um teste de login) utilizando o Postman.
+Agradecemos a compreensão!**
+___
 ## 🚀 Como Executar o Projeto em Maquina
 
 1. **Clonar o Repositório:**
