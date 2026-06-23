@@ -6,7 +6,7 @@ import { NavigationProp } from "../../@types/Navigation";
 import { useTheme } from "../../contexts/ThemeContext";
 import { useAuth } from "../../contexts/AuthContext";
 import { getStyles } from "./styles";
-import MovieGrid from "../../Components/MovieGrid";
+import MovieGrid from "../../components/MovieGrid";
 import { MaterialIcons } from "@expo/vector-icons";
 import apiFilmes from "../../data/apiFilmes"; 
 
